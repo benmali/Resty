@@ -21,6 +21,7 @@ class DB:
                               employee_id INT NOT NULL,
                               fist_name VARCHAR(50) NOT NULL,
                               last_name VARCHAR(50) NOT NULL,
+                              position VARCHAR(50) NOT NULL,
                               seniority INT NOT NULL,
                               PRIMARY KEY (employee_id)
                             );

@@ -1,14 +1,32 @@
 from Employee import Employee
+from datetimeHelp import convert_to_str, convert_to_date,get_day
+
 
 class Shift:
-    def __init__(self, day, hours, num_employees):
-        self.day = day
-        self.hours = hours
-        self.num_employess = num_employees
+    def __init__(self, date, start_hour, bartenders,num_bartenders, waitresses, num_waitresses ):
+        """
+
+        :param date: date of shift
+        :param start_hour: statring hour
+        :param bartenders: list of Employees
+        :param num_bartenders: int of needed Employees
+        :param waitresses: list of Employee
+        :param num_waitresses: int of needed Employee
+        """
+        self.date = date
+        self.start_hour = start_hour
+        self.num_bartenders = num_bartenders
+        self.num_waitresses = num_waitresses
+        self.bartenders = bartenders
+        self.waitresses = waitresses
+
         self.employees = []
 
     def get_day(self):
-        return self.day
+        """
+        :return: String day name - "Monday"
+        """
+        return get_day(self.date)
 
     def get_hours(self):
         return self.hours
@@ -28,7 +46,6 @@ class Shift:
 
         except ValueError:
             print("Not Enough employees to complete scheduling")
-
 
 
 if __name__ == "__main__":
