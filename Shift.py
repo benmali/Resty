@@ -1,4 +1,5 @@
-from  Employee import Employee
+from Employee import Employee
+
 class Shift:
     def __init__(self, day, hours, num_employees):
         self.day = day
