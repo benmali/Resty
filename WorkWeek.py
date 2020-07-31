@@ -1,6 +1,13 @@
+from Shift import Shift
+from WorkDay import WorkDay
+from Employee import Employee
+from DB import DB
+
+
 class WorkWeek:
     def __init__(self, work_days):
         self.work_days = work_days
+
 
     def calculate_daily_tips(self, work_day, tips):
         """
@@ -16,8 +23,22 @@ class WorkWeek:
                 # sum all  work hours of employees
                 #assign tip to employee - (work hours/total hours) * tips
 
-
-@staticmethod
-def calculate_salary(employees):
+    @staticmethod
+    def calculate_salaries(employees):
+        total = 0
         for employee in employees:
-            pass
+            total += employee.calculate_salary()
+        return total
+
+    @staticmethod
+    def create_arrangement():
+        """
+        get needed shifts for each day
+        for each shift find number of needed staff
+        get random employee and fit him to shift
+        add shift to employees
+        """
+        e1 = Employee(1,1,1,["bartender"])
+        e2 = Employee(2,2,2,["waitress"])
+        s1 = Shift("1-1-20","16:00")
+        s2 = Shift("2-1-20","16:00")

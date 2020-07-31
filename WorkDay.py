@@ -15,6 +15,14 @@ class WorkDay:
         self.manager = manager
         self.shifts = []
 
+    def add_shift(self, shift):
+        """
+        add Shift object to shifts list
+        :param shift:
+        :return:None
+        """
+        self.shifts.append(shift)
+
 
 if __name__ == "__main__":
     pass

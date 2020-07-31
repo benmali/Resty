@@ -19,10 +19,8 @@ class DB:
                 query = """CREATE TABLE Employee
                             (
                               employee_id INT NOT NULL,
-                              fist_name VARCHAR(50) NOT NULL,
+                              first_name VARCHAR(50) NOT NULL,
                               last_name VARCHAR(50) NOT NULL,
-                              position VARCHAR(50) NOT NULL,
-                              seniority INT NOT NULL,
                               PRIMARY KEY (employee_id)
                             );
                           """
@@ -33,19 +31,18 @@ class DB:
                               start_time DATE NOT NULL,
                               end_time DATE NOT NULL,
                               employee_id INT NOT NULL,
-                              PRIMARY KEY (work_day, employee_id),
-                              FOREIGN KEY (employee_id) REFERENCES Employee(employee_id)
+                              PRIMARY KEY (work_day, employee_id)
                             );
                           """
                 query3 = """
                             CREATE TABLE Shift
                             (
                               shift_id INT NOT NULL,
-                              work_day INT NOT NULL,
                               start_time DATE NOT NULL,
-                              end_time DATE NOT NULL,
                               date DATE NOT NULL,
-                              num_employees INT NOT NULL,
+                              num_bartenders INT NOT NULL,
+                              num_waitresses INT NOT NULL,
+                              tip DOUBLE,
                               PRIMARY KEY (shift_id)
                             );
                             """
@@ -58,15 +55,56 @@ class DB:
                               FOREIGN KEY (employee_id) REFERENCES Employee(employee_id),
                               FOREIGN KEY (shift_id) REFERENCES Shift(shift_id)
                             );"""
+
+                query5 = """
+                            CREATE TABLE User
+                            (
+                                user_id INT NOT NULL,
+                                first_name VARCHAR(50) NOT NULL,
+                                last_name VARCHAR(50) NOT NULL,
+                                phone VARCHAR(50),
+                                password VARCHAR(50) NOT NULL,
+                                PRIMARY KEY (user_id)
+                                );"""
+                query6 = """
+                            CREATE TABLE Employee_Positions
+                            (
+                              position VARCHAR(50) NOT NULL,
+                              seniority INT NOT NULL,
+                              employee_id INT NOT NULL,
+                              base_salary DOUBLE NOT NULL,
+                              PRIMARY KEY (position, employee_id)
+                            );"""
+                query7 = """
+                            CREATE TABLE Day_Shifts
+                            (
+                                shift_id INT NOT NULL,
+                                date DATE NOT NULL,
+                                PRIMARY KEY (shift_id, date)
+                            );"""
+                query8 = """
+                            CREATE TABLE Employee_Shift
+                            (
+                                employee_id INT NOT NULL,
+                                shift_id INT NOT NULL,
+                                start_hour DATE NOT NULL,
+                                end_hour DATE NOT NULL,
+                                date DATE NOT NULL,
+                                PRIMARY KEY (shift_id, employee_id)
+                                           );"""
                 crsr.execute(query)
                 crsr.execute(query2)
                 crsr.execute(query3)
                 crsr.execute(query4)
+                crsr.execute(query5)
+                crsr.execute(query6)
+                crsr.execute(query7)
+                crsr.execute(query8)  # finished shifts
                 connection.commit()
                 connection.close()
 
             else:
-                logging.log(1,"DB exists")
+                logging.log(1, "DB exists")
         except IOError:
             print("DB already exists")
 
@@ -75,12 +113,93 @@ class DB:
             self.create_db()
         connection = sqlite3.connect(self.name)
         crsr = connection.cursor()
-        insret_query = """INSERT INTO Resty.db (employee_id,product_name) VALUES ("{}", "{}");""".format(key, value)
-        crsr.execute(insret_query)
+        # insret_query = """INSERT INTO Resty.db (employee_id,product_name) VALUES ("{}", "{}");""".format(key, value)
+        # crsr.execute(insret_query)
         # commit changes to DB
         connection.commit()
         # close the connection
         connection.close()
+
+    def get_employees(self):
+        try:
+            if self.check_for_db():  # if DB doesn't exist create it
+                connection = sqlite3.connect(self.name)
+                crsr = connection.cursor()
+                query = "SELECT * FROM Employee"
+                crsr.execute(query)
+                data = crsr.fetchall()
+                connection.close()
+                return data
+        except IOError:
+            print("No DB exists")
+
+    def get_bartenders(self):
+        """
+        method to get all bartenders
+        :return: list of bartenders
+        """
+        try:
+            if self.check_for_db():  # check fot DB existence
+                connection = sqlite3.connect(self.name)
+                crsr = connection.cursor()
+                query = """SELECT E.employee_id, first_name, last_name, seniority 
+                FROM Employee E JOIN Employee_Positions EP ON E.employee_id=EP.employee_id 
+                WHERE position="bartender";"""
+                crsr.execute(query)
+                data = crsr.fetchall()
+                connection.close()
+                return data
+        except IOError:
+            print("Failed to get bartenders")
+
+    def get_waitresses(self):
+        try:
+            connection = sqlite3.connect(self.name)
+            crsr = connection.cursor()
+            query = """SELECT E.employee_id, first_name, last_name, seniority 
+            FROM Employee E JOIN Employee_Positions EP ON E.employee_id=EP.employee_id 
+            WHERE position="waitress";"""
+            crsr.execute(query)
+            data = crsr.fetchall()
+            connection.close()
+            return data
+        except IOError:
+            print("Failed to get waitresses")
+
+    def get_managers(self):
+        try:
+            if self.check_for_db():  # check for DB existence
+                connection = sqlite3.connect(self.name)
+                crsr = connection.cursor()
+                query = """SELECT E.employee_id, first_name, last_name, seniority 
+                FROM Employee E JOIN Employee_Positions EP ON E.employee_id=EP.employee_id 
+                WHERE position="manager";"""
+                crsr.execute(query)
+                data = crsr.fetchall()
+                connection.close()
+                return data
+        except IOError:
+            print("Failed to get managers")
+
+    def get_day_shifts(self, date):
+        try:
+            if self.check_for_db():  # check for DB existence
+                connection = sqlite3.connect(self.name)
+                crsr = connection.cursor()
+                query = """SELECT shift_id 
+                        FROM Day_Shifts 
+                        WHERE date={};""".format(date)
+                crsr.execute(query)
+                data = crsr.fetchall()
+                connection.close()
+                return data
+        except IOError:
+            print("Failed to get shifts")
+
+
 if __name__ == "__main__":
     db = DB("Resty.db")
     db.create_db()
+    # print(db.get_bartenders())
+    # print(db.get_employees())
+    # print((db.get_waitresses()))
