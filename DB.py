@@ -27,11 +27,11 @@ class DB:
                 query2 = """
                             CREATE TABLE Employee_Times
                             (
-                              work_day INT NOT NULL,
-                              start_time DATE NOT NULL,
-                              end_time DATE NOT NULL,
                               employee_id INT NOT NULL,
-                              PRIMARY KEY (work_day, employee_id)
+                              date INT NOT NULL,
+                              start_time DATE,
+                              end_time DATE,
+                              PRIMARY KEY (date, employee_id)
                             );
                           """
                 query3 = """
@@ -195,6 +195,65 @@ class DB:
                 return data
         except IOError:
             print("Failed to get shifts")
+
+    def get_employee_options(self, start_date):
+        try:
+            if self.check_for_db():  # check fot DB existence
+                connection = sqlite3.connect(self.name)
+                crsr = connection.cursor()
+                query = """SELECT E.employee_id, first_name, last_name, position, seniority 
+                     FROM Employee E JOIN Employee_Positions EP ON E.employee_id=EP.employee_id 
+                     JOIN Employee_Times ET ON E.employee_id=ET.employee_id
+                     WHERE date={};""".format(start_date)
+                crsr.execute(query)
+                data = crsr.fetchall()
+                connection.close()
+                return data
+        except IOError:
+            print("Failed to get bartenders")
+
+    def get_employees_by_date_range(self, start_date, end_date):
+        """
+        method to get employees between eligible dates
+        :param start_date:
+        :param end_date:
+        :return: list of employees with possible dates
+        """
+        try:
+            if self.check_for_db():  # check fot DB existence
+                connection = sqlite3.connect(self.name)
+                crsr = connection.cursor()
+                query = """SELECT  E.employee_id, first_name, last_name, ET.position, ET.date
+                        FROM Employee E JOIN Employee_Positions EP ON E.employee_id=EP.employee_id 
+                        JOIN Employee_Times ET ON E.employee_id=ET.employee_id
+                        WHERE ET.date BETWEEN {} AND {}};""".format(start_date,end_date)
+                crsr.execute(query)
+                data = crsr.fetchall()
+                connection.close()
+                return data
+        except IOError:
+            print("Failed to get bartenders")
+
+    def get_employee_shifts(self, employee_id):
+        """
+        :returns list of shift ids for specific employee
+        :param employee_id:
+        :return:
+        """
+        try:
+            if self.check_for_db():  # check fot DB existence
+                connection = sqlite3.connect(self.name)
+                crsr = connection.cursor()
+                query = """SELECT shift_id
+                            FROM Employee_Shift
+                            WHERE employee_id={}};""".format(employee_id)
+                crsr.execute(query)
+                data = crsr.fetchall()
+                connection.close()
+                return data
+        except IOError:
+            print("Failed to get bartenders")
+
 
 
 if __name__ == "__main__":

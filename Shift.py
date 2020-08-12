@@ -5,7 +5,7 @@ from DB import DB
 
 
 class Shift:
-    def __init__(self, date, start_hour, num_bartenders=1, num_waitresses=1):
+    def __init__(self, shift_id, date, start_hour, num_bartenders=1, num_waitresses=1):
         """
         create a shift object with default number of employees
         this object is the shift to be scheduled
@@ -16,6 +16,7 @@ class Shift:
         :param waitresses: list of Employee
         :param num_waitresses: int of needed Employee
         """
+        self.shift_id = shift_id
         self.date = date
         self.start_hour = start_hour
         self.num_bartenders = num_bartenders
@@ -30,6 +31,12 @@ class Shift:
         """
         pass
 
+    def get_num_barts(self):
+        return self.num_bartenders
+
+    def get_num_waits(self):
+        return self.num_waitresses
+
     def get_day(self):
         """
         :return: String day name - "Monday"
@@ -37,7 +44,10 @@ class Shift:
         return get_day(self.date)
 
     def get_date(self):
-        return self.get_date()
+        return self.date
+
+    def get_shift_id(self):
+        return self.shift_id
 
     def get_start_hour(self):
         return self.start_hour
@@ -51,18 +61,12 @@ class Shift:
     def update_tips(self):
         pass
 
-    def schedule_employees(self, employees, date_range):
-        try:
-            for employee in employees:
-                if self.num_employess > len(self.employees):
-                    self.employees.append(employee)  # add employee to shift
-                    employee.add_shift(self)
-            if self.num_employess != len(self.employees):
-                # end of scheduling process result in not enough employees for shift
-                raise ValueError
+    def get_bartenders(self):
+        return self.bartenders
 
-        except ValueError:
-            print("Not Enough employees to complete scheduling")
+    def get_waitresses(self):
+        return self.waitresses
+
 
 
 class EmployeeShift:
@@ -75,6 +79,10 @@ class EmployeeShift:
         self.start_hour = shift.get_start_hour()
         self.date = shift.get_date()
         self.end_hour = end_hour
+        self.employees = []
+
+    def get_employees(self):
+        return self.employees
 
 
 @staticmethod

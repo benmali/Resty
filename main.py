@@ -7,6 +7,7 @@ app = Flask(__name__)
 #bp show arrangement - get
 #bp create arrangment - get/post
 #bp login - post/get
+#bp register to the website
 app.register_blueprint(registerBP, url_prefix="")
 
 if __name__ == "__main__":
