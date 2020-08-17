@@ -51,48 +51,61 @@ class WorkWeek:
                     num_scheduled_bartenders = 0
                     num_waitresses = shift.get_num_waits()
                     num_scheduled_waitresses = 0
-                    i = 0
-                    possible_employees = [bartender for bartender in shift_dic[i] if
-                                          "bartender" in bartender.get_positions()]
-                    while num_bartenders > num_scheduled_bartenders:
-                        # filter out bartenders from all employees
-                        if len(possible_employees) ==0: # if no possible match found
-                            i+=1
-                            continue
+                    for i in range(7):
+                        if num_bartenders == num_scheduled_bartenders:
+                            break  # scheduling shift is over, break look
+                        if shift_dic[i] is not None:
+                            possible_employees = [bartender for bartender in shift_dic[i] if
+                                              "bartender" in bartender.get_positions()]
                         else:
-                            chosen_employee = random.choice(possible_employees)
-                            if shift.get_date() in chosen_employee.get_dates():
-                                shift.add_bartender(chosen_employee)
-                                chosen_employee.add_shift(shift.get_shift_id())
-                                increment_list = shift_dic[i+1]
-                                increment_list.append(chosen_employee)
-                                shift_dic[i+1] = increment_list
-                                decrement_list = shift_dic[i]
-                                decrement_list.remove(chosen_employee)
-                                shift_dic[i] = decrement_list
-                                num_scheduled_bartenders+=1
-                            else: # employee cant work at this date
-                                possible_employees.remove(chosen_employee)
-                    i = 0
-                    while num_waitresses > num_scheduled_waitresses:
-                        # filter out waitresses from
-                        possible_employees = [waitress for waitress in shift_dic[i] if
-                                              "waitress" in waitress.get_positions()]
-                        if len(possible_employees) == 0:  # if no possible match found
-                            i += 1
                             continue
+                        while num_bartenders > num_scheduled_bartenders:
+                            # filter out bartenders from all employees
+
+                            if len(possible_employees) ==0: # if no possible match found
+                                continue
+                            else:
+                                chosen_employee = random.choice(possible_employees)
+                                if shift.get_date() in chosen_employee.get_dates():
+                                    shift.add_bartender(chosen_employee)
+                                    chosen_employee.add_shift(shift.get_shift_id())
+                                    increment_list = shift_dic[i+1]
+                                    increment_list.append(chosen_employee)
+                                    shift_dic[i+1] = increment_list
+                                    decrement_list = shift_dic[i]
+                                    decrement_list.remove(chosen_employee)
+                                    shift_dic[i] = decrement_list
+                                    num_scheduled_bartenders+=1
+                                else: # employee cant work at this date
+                                    possible_employees.remove(chosen_employee)
+                    for i in range(7):
+                        if num_waitresses == num_scheduled_waitresses:
+                            print(shift)
+                            break  # scheduling shift is over, break look
+                        if shift_dic[i] is not None:
+                            possible_employees = [waitress for waitress in shift_dic[i] if
+                                                  "waitress" in waitress.get_positions()]   # filter out waitresses from
                         else:
-                            chosen_employee = random.choice(possible_employees)
-                            if shift.get_date() in chosen_employee.get_dates():
-                                shift.add_waitress(chosen_employee)
-                                chosen_employee.add_shift(shift.get_shift_id())
-                                increment_list = shift_dic[i + 1]
-                                shift_dic[i + 1] = increment_list.append(chosen_employee)
-                                decrement_list = shift_dic[i]
-                                shift_dic[i] = decrement_list.remove(chosen_employee)
-                                num_scheduled_waitresses+=1
-                            else:  # employee cant work at this date
-                                possible_employees.remove(chosen_employee)
+                            continue
+                        while num_waitresses > num_scheduled_waitresses:
+
+                            if len(possible_employees) == 0:  # if no possible match found
+                                continue
+                            else:
+                                chosen_employee = random.choice(possible_employees)
+                                if shift.get_date() in chosen_employee.get_dates():
+                                    shift.add_waitress(chosen_employee)
+                                    chosen_employee.add_shift(shift.get_shift_id())
+                                    increment_list = shift_dic[i + 1]
+                                    increment_list.append(chosen_employee)
+                                    shift_dic[i + 1] = increment_list
+                                    decrement_list = shift_dic[i]
+                                    decrement_list.remove(chosen_employee)
+                                    shift_dic[i] = decrement_list
+                                    num_scheduled_waitresses+=1
+                                else:  # employee cant work at this date
+                                    possible_employees.remove(chosen_employee)
+            return shift_dic
 
         except OverflowError:
             print("Too many loops - program shutdown")
@@ -104,17 +117,23 @@ if __name__ == "__main__":
 
     s1 = Shift(1, "1-1-2020", "16:00")
     s2 = Shift(2, "2-1-2020", "16:00")
-    s3 = s2 = Shift(3, "2-1-2020", "19:00")
-    wd = WorkDay("2-1-2020","16:00","Tom")
+    #s3 = Shift(3, "2-1-2020", "19:00")
+    wd = WorkDay("1-1-2020","16:00","Tom")
+    #protect against inserting shifts with diffrent date than day to workday
+    # to do - return error on specific day with no solution, make program skip it
     wd.add_shift(s1)
-    wd2 = WorkDay("3-1-2020", "16:00", "Tom")
+    wd2 = WorkDay("2-1-2020", "16:00", "Tom")
     wd2.add_shift(s2)
-    wd2.add_shift(s3)
+    #wd2.add_shift(s3)
     wd3 = WorkDay("4-1-20","16:00","Tom")
     e1 = Employee(1, 1, {"bartender": 1},["1-1-2020"])
     e2 = Employee(2, 2, {"waitress": 1}, ["2-1-2020"])
     e3 = Employee(3, 3, {"bartender": 1},["1-1-2020","2-1-2020"])
     e4 = Employee(4, 4, {"bartender": 1}, ["2-1-2020"])
     e5 = Employee(5, 5, {"waitress": 2, "bartender": 1},["2-1-2020"])
-    ww = WorkWeek([wd, wd2, wd3])
-    ww.create_arrangement("1-1-2020","4-1-2020",[e1,e2,e3,e4,e5])
+    e6 = Employee(6, 6, {"waitress": 1}, ["1-1-2020"])
+    ww = WorkWeek([wd, wd2])
+    #ww.create_arrangement("1-1-2020","4-1-2020",[e1,e2,e3,e4,e5,e6])
+    #print(s1,s2)
+    print(ww.create_arrangement("1-1-2020","4-1-2020",[e1,e2,e3,e4,e5,e6]))
+    # test case without e6 to see what happens when script cant complete scheduling

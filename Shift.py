@@ -1,5 +1,5 @@
 from Employee import Employee
-from datetimeHelp import convert_to_str, convert_to_date,get_day
+from datetimeHelp import convert_to_str, convert_to_date, get_day
 import datetime
 from DB import DB
 
@@ -23,6 +23,12 @@ class Shift:
         self.num_waitresses = num_waitresses
         self.bartenders = []
         self.waitresses = []
+
+    def __repr__(self):
+        return "shift id: {}, date: {}, bartenders: {}, waitresses: {}".format(self.shift_id,
+                                                                               self.date,
+                                                                               self.bartenders,
+                                                                               self.waitresses)
 
     def create_employee(self):
         """
@@ -68,7 +74,6 @@ class Shift:
         return self.waitresses
 
 
-
 class EmployeeShift:
     def __init__(self, shift, end_hour):
         """
@@ -101,6 +106,8 @@ def get_employees_for_shift():
         pass
 
     return []
+
+
 if __name__ == "__main__":
     # bart = Employee(1,2,3,4)
     # waiter = Employee(2,3,4,5)
@@ -108,4 +115,3 @@ if __name__ == "__main__":
     # first_shift = Shift(date,date.hour,[bart], 1, [waiter], 1)
     db = DB("Resty.db")
     data = db.get_employees()
-

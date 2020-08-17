@@ -1,0 +1,28 @@
+Home screen
+
+user panel (if admin)
+
+register user - id, first name,last name,phone
+
+login/logout (google)?
+
+CREATE SHIFTS - SHIFT ID - AUTO INCREMENT, START TIME (HOUR - DATE OBJECT), DATE, NUMBER OF bartenders,number of waitresses
+
+update shift - add tip
+
+add postion to employee - employee_id, seniority = 0, base salary (for position)
+
+remove position to employee 
+
+register working hours - employee_id, start time, end time, date (link to shift_id)
+
+send work times - employe_id, date, start time (which shift - open/middle/close)
+
+view arrangement - table view to show logic output
+
+
+employee inherits from user - has positions in OOP not in DB (user may be sys admin)
+create testing SQL
+update SHift with end time 
+WOrkweek template
+
