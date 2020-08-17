@@ -8,13 +8,28 @@ class WorkDay:
         :param start_hour: datetime object
         :param end_hour: datetime object
         :param shifts: list of Shift objects
+        :param employess: list of employees working on this day
         """
         self.date = date
         self.start_hour = start_hour
         self.end_hour = end_hour
         self.manager = manager
         self.shifts = []
+        self.employees = []
 
+    def __repr__(self):
+        return " DAY: {}".format(self.date)
+
+    def add_employee(self, employee):
+        self.employees.append(employee)
+
+    def reset_shifts(self):
+        for shift in self.shifts:
+            shift.reset_shift()
+        self.employees = []
+
+    def get_employees(self):
+        return self.employees
     def add_shift(self, shift):
         """
         add Shift object to shifts list

@@ -21,6 +21,8 @@ class Employee:
 
     def add_shift(self, shift):
         self.shifts.append(shift)
+    def reset_shifts(self):
+        self.shifts = []
 
     def set_shifts(self, shifts):
         self.shifts = shifts

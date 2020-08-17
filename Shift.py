@@ -40,6 +40,10 @@ class Shift:
     def is_full(self):
         return len(self.bartenders) == self.num_bartenders and len(self.waitresses) == self.num_waitresses
 
+    def reset_shift(self):
+        self.bartenders = []
+        self.waitresses = []
+
     def get_num_barts(self):
         return self.num_bartenders
 
