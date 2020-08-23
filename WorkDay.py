@@ -2,7 +2,7 @@ import datetime
 
 
 class WorkDay:
-    def __init__(self, date, start_hour, manager, end_hour=None):
+    def __init__(self,org_id, date,manager):
         """
         :param date: datetime object
         :param start_hour: datetime object
@@ -11,8 +11,7 @@ class WorkDay:
         :param employess: list of employees working on this day
         """
         self.date = date
-        self.start_hour = start_hour
-        self.end_hour = end_hour
+        self.org_id = org_id
         self.manager = manager
         self.shifts = []
         self.employees = []
@@ -30,6 +29,10 @@ class WorkDay:
 
     def get_employees(self):
         return self.employees
+
+    def get_date(self):
+        return self.date
+    
     def add_shift(self, shift):
         """
         add Shift object to shifts list
@@ -54,6 +57,7 @@ class WorkDay:
 
     def get_shifts(self):
         return self.shifts
+
 
 if __name__ == "__main__":
     pass

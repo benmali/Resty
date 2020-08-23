@@ -1,4 +1,7 @@
-class Employee:
+from User import User
+
+
+class Employee(User):
     def __init__(self, e_id, name, positions, work_days=None, max_hours=None):
         """
         create an Employee object
@@ -19,8 +22,13 @@ class Employee:
     def __repr__(self):
         return "Employee {}, {}, {}".format(self.e_id, self.name, self.positions.keys())
 
+    def get_full_name(self):
+        name = self.name.split(" ")
+        return name[0], name[1]
+
     def add_shift(self, shift):
         self.shifts.append(shift)
+
     def reset_shifts(self):
         self.shifts = []
 
@@ -36,6 +44,7 @@ class Employee:
         :return: list of Positions
         """
         return self.positions
+
     def get_dates(self):
         return self.work_days
 
@@ -51,9 +60,14 @@ class Employee:
     def get_id(self):
         return self.e_id
 
-    def calculate_salary(self):
-        for shift in self.shifts:
-            pass
+    @staticmethod
+    def calculate_salaries(employees):
+        total = 0
+        for employee in employees:
+            total += employee.calculate_salary()
+        return total
+
+
 
 if __name__ == "__main__":
     pass

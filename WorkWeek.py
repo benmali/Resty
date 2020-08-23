@@ -15,34 +15,32 @@ class WorkWeek:
         """
         self.work_days = work_days
 
-    @staticmethod
-    def calculate_salaries(employees):
-        total = 0
-        for employee in employees:
-            total += employee.calculate_salary()
-        return total
 
-    def create_arrangement(self, start_date, end_date, employees=None):
+    def create_arrangement(self,org_id,start_date, end_date, employees=None):
         """
         get needed shifts for each day
         for each shift find number of needed staff
         get random employee and fit him to shift
         add shift to employees
+
         """
+        """"""
+
         try:
             db = DB("Resty.db")
             # get number of employees in eligible date range
-            # employees = db.get_employees_by_date_range("1-1-2020", "4-1-2020")
             # employees should be a dictionary, mapping between dates and available employees
             bartenders = [bartender for bartender in employees[:] if "bartender" in bartender.get_positions()]
             waitresses = [waitress for waitress in employees[:] if "waitress" in waitress.get_positions()]
-
+            required_employees = 0
             days = [day for day in self.work_days[:]]
             shifts = []
             for day in days:
                 for shift in day.get_shifts():
                     shifts.append(shift)
-            num_shifts = len(shifts)
+                    # sums up the needed number of employees to create full arrangement
+                    required_employees += shift.get_num_barts() + shift.get_num_waits()
+
 
             # create employee objects
             # limit the number of shifts an employee can have per week to 10
@@ -54,7 +52,7 @@ class WorkWeek:
             # create dictionary to map num of shifts per employee
             best = []
             max_num_employees = 0
-            for j in range(15):  # try to find solution 15 times
+            for j in range(25):  # try to find solution 25 times
                 num_employees = 0
                 shift_dic = {0: employees[:]} # reset dictionary if no solution was found
                 [employee.reset_shifts() for employee in employees[:]] # reset shifts for employees
@@ -82,8 +80,6 @@ class WorkWeek:
                             while num_bartenders > num_scheduled_bartenders:
                                 if prevent_loop > 100:
                                     break
-                                # filter out bartenders from all employees
-
                                 if len(possible_employees) == 0:
                                     prevent_loop += 1  # if no possible match found
                                     break
@@ -148,9 +144,9 @@ class WorkWeek:
                                     else:  # employee cant work at this date
                                         possible_employees.remove(chosen_employee)
                                 prevent_loop += 1
-                        # if not found_sol:
-                        #   solution.append(copy.deepcopy(shift))
-                        print(shift) # print shift when done to find missing spots
+                        if not found_sol:
+                            solution.append(copy.deepcopy(shift))
+                        #print(shift) # print shift when done to find missing spots
                     num_employees += len(day.get_employees())
                 if max_num_employees < num_employees:
                     max_num_employees = num_employees
@@ -163,7 +159,7 @@ class WorkWeek:
                     print("\"\"\"\"\"")
                     print("iteration: {}".format(j))
 
-                if len(solution) == num_shifts:
+                if required_employees == num_employees:  # full solution found
                     return shift_dic, best
             print("No viable solution found - getting our best solution!")
             return best_dictionary, best
@@ -202,7 +198,7 @@ if __name__ == "__main__":
     ww = WorkWeek([wd, wd2, wd3])
     # ww.create_arrangement("1-1-2020","4-1-2020",[e1,e2,e3,e4,e5,e6])
     # print(s1,s2)
-    dic, sol = ww.create_arrangement("1-1-2020", "4-1-2020", [e1, e2, e3, e4, e5, e6])
+    dic, sol = ww.create_arrangement(100,"1-1-2020", "4-1-2020", [e1, e2, e3, e4, e5, e6])
     for shift in sol:
         print (shift)
     print(dic)
@@ -226,7 +222,7 @@ if __name__ == "__main__":
     e2 = Employee(2, 2, {"waitress": 1}, ["1-1-2020","2-1-2020","4-1-2020","7-1-2020"])
     e3 = Employee(3, 3, {"bartender": 1}, ["1-1-2020", "2-1-2020", "3-1-2020", "7-1-2020"])
     e4 = Employee(4, 4, {"bartender": 1}, ["2-1-2020","4-1-2020", "5-1-2020","6-1-2020"])
-    e5 = Employee(5, 5, {"waitress": 2, "bartender": 1}, ["2-1-2020","3-1-2020" ]) # remove 3-1-20 to get best non viable solution
+    e5 = Employee(5, 5, {"waitress": 2, "bartender": 1}, ["2-1-2020" ,"3-1-2020"]) # remove 3-1-20 to get best non viable solution
     e6 = Employee(6, 6, {"waitress": 1, "bartender": 1}, ["1-1-2020", "6-1-2020", "5-1-2020"])
     e7 = Employee(7, 7, {"waitress": 1}, ["1-1-2020","7-1-2020","5-1-2020"])
     e8 = Employee(8, 8, {"waitress": 1,"bartender": 1}, ["6-1-2020", "5-1-2020"])
@@ -254,8 +250,10 @@ if __name__ == "__main__":
     wd7.add_shift(s13)
     wd7.add_shift(s14)
     ww = WorkWeek([wd,wd2,wd3,wd4,wd5,wd6,wd7])
-    dic, sol = ww.create_arrangement("1-1-2020", "7-1-2020", [e1, e2, e3, e4, e5, e6,e7,e8,e9,e10])
+    dic, sol = ww.create_arrangement(100,"1-1-2020", "7-1-2020", [e1, e2, e3, e4, e5, e6,e7,e8,e9,e10])
+    db = DB("Resty.db")
     print("best sol is")
     for shift in sol:
         print (shift)
     print(dic)
+    #db.register_arrangement(sol)

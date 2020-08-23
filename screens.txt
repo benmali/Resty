@@ -1,4 +1,4 @@
-Home screen
+	Home screen
 
 user panel (if admin)
 
@@ -25,4 +25,9 @@ employee inherits from user - has positions in OOP not in DB (user may be sys ad
 create testing SQL
 update SHift with end time 
 WOrkweek template
+add screen to update employees,
+register an employee (create positions)
+
+routes:
+/send_hours - post + get - webpage for employees to turn in shift options
 

@@ -29,8 +29,20 @@ def convert_to_str(date):
     """
     return date.strftime("%d-%m-%Y")
 
+
 def get_day(date):
     return date.strftime("%A")
+
+
+def swap_date_format(date):
+    """
+    flips the date format from or to YYYY-MM-DD
+    :param date: string YYYY-MM-DD or DD-MM-YYYY
+    :return:
+    """
+    return "-".join(date.split("-")[::-1])
+
+
 
 def convert_to_date(date_str):
     """
