@@ -54,7 +54,7 @@ class DB:
                               shift_id INT NOT NULL,
                               employee_id INT NOT NULL,
                               solution INT NOT NULL,
-                              PRIMARY KEY (employee_id, shift_id)
+                              PRIMARY KEY (employee_id, shift_id,solution)
                             );"""
 
                 query5 = """
