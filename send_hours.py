@@ -34,8 +34,8 @@ def send_hours():
 
         if request.method == "GET":
             org_id = 1  # get user's org_id
-            start_date = datetimeHelp.next_weekday(dt.today(),6) # next sunday
-            end_date = datetimeHelp.next_weekday(dt.today(), 12)  # next sunday
+            start_date = datetimeHelp.next_weekday(dt.today(),6)  # next week's Sunday
+            end_date = datetimeHelp.next_weekday(dt.today(), 12)  # next week's Saturday
             raw_shifts = db.get_shifts_by_date_range(org_id, start_date, end_date)
             shifts = [Shift(shift[0], shift[1], shift[2]) for shift in raw_shifts]
             return render_template("send_hours.html", params={"shifts":shifts})

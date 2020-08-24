@@ -14,9 +14,10 @@
                 <thead>
                     <tr>
                         <td></td>
-                        <td>ShiftID</td>
-                        <td>Shift Date</td>
-                        <td>Shift Start Time</td>
+                        <td>Shift ID</td>
+                        <td>Day</td>
+                        <td>Date</td>
+                        <td>Start Time</td>
 
                     </tr>
                 </thead>
@@ -24,6 +25,7 @@
                 {% for shift in params["shifts"] %}
                     <tr>
                         <td>{{shift.shift_id}}</td>
+                        <td>{{shift.get_day()}}</td>
                         <td>{{shift.date}}</td>
                         <td>{{shift.start_hour}}</td>
                         <td>  Select this shift</td>

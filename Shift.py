@@ -1,6 +1,6 @@
 from Employee import Employee
 from datetimeHelp import convert_to_str, convert_to_date, get_day
-import datetime
+
 from DB import DB
 
 
@@ -54,7 +54,8 @@ class Shift:
         """
         :return: String day name - "Monday"
         """
-        return get_day(self.date)
+        day = convert_to_date(self.date)
+        return day.strftime("%A")
 
     def get_date(self):
         return self.date
@@ -119,6 +120,7 @@ if __name__ == "__main__":
     # bart = Employee(1,2,3,4)
     # waiter = Employee(2,3,4,5)
     # date = datetime.datetime(20,6,15,16)
-    # first_shift = Shift(date,date.hour,[bart], 1, [waiter], 1)
+    first_shift = Shift(1,"2020-01-01","16:00")
+    print(first_shift.get_day())
     db = DB("Resty.db")
     data = db.get_employees()
