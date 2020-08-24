@@ -82,7 +82,7 @@ class WorkWeek:
                                 else:
                                     chosen_employee = random.choice(possible_employees)
                                     if shift.get_date() in chosen_employee.get_dates().keys():
-                                        if shift.get_start_hour() == chosen_employee.get_dates()[shift.get_date()] or chosen_employee.get_dates()[shift.get_date()] == "Any":
+                                        if shift.get_start_hour() in chosen_employee.get_dates()[shift.get_date()]:
                                             # makes sure employee isn't already scheduled to work
                                             # same_day_scheduling is set to false by default
                                             if chosen_employee not in day.get_employees() or same_day_scheduling:
@@ -122,7 +122,7 @@ class WorkWeek:
                                     chosen_employee = random.choice(possible_employees)
                                     # makes sure employee is able to work at this shift
                                     if shift.get_date() in chosen_employee.get_dates().keys():
-                                        if shift.get_start_hour() == chosen_employee.get_dates()[shift.get_date()] or chosen_employee.get_dates()[shift.get_date()] == "Any":
+                                        if shift.get_start_hour() in chosen_employee.get_dates()[shift.get_date()]:
                                             # makes sure employee isn't already scheduled to work this day
                                             if chosen_employee not in day.get_employees() or same_day_scheduling:
                                                 # not scheduled for this shift

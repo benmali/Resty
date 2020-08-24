@@ -21,9 +21,10 @@ def send_hours():
 
             # match the user's days request
             user_id = request.form["user_id"]
-            dates = request.form["dates"] # convert days to date - accepted formats YYYY-MM-DD OR YYYY-MM-DD
+            dates = request.form["dates"] # convert days to date - accepted format YYYY-MM-DD  HH:MM
             start_time = request.form["hours"]
-            end_time = request.form["end_time"]
+            end_time = "NULL"
+            # change arrangement and employee logic to handle multiple hour choice,
             for date in dates:
                 db.insert_employee_times(user_id, date, start_time, end_time)
 

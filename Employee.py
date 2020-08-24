@@ -14,12 +14,14 @@ class Employee(User):
         self.e_id = e_id
         self.name = name
         self.work_days = {}
-        for day in work_days:
-            if len(day)==len("2020-01-01"):  # date has no start_hour attached
-                self.work_days[day] = "Any"
+        for day in work_days:  # MUST BE IN #YYYY-MM-DD HH:MM format !
+            date, time = day.split(" ") #YYYY-MM-DD HH:MM format
+
+            if date in self.work_days:
+                self.work_days[date]+=[time]
             else:
-                date, time = day.split(" ") #YYYY-MM-DD HH:MM format
-                self.work_days[date] = time
+                self.work_days[date] = [time]
+
         self.max_hours = max_hours
         self.shifts = []
         self.scheduled_hours = 0
