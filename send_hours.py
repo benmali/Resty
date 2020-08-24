@@ -2,10 +2,13 @@ from flask import Blueprint, render_template, request, session, flash, redirect
 from DB import DB
 import datetimeHelp
 from Employee import Employee
+from Shift import Shift
+from datetime import date as dt
+
 
 sendHoursBP = Blueprint("send_hours", __name__, static_folder="static", template_folder="templates")
 
-
+db = DB("Resty.db")
 @sendHoursBP.route("/send_hours", methods=["POST", "GET"])
 # get after user chooses group
 def send_hours():
@@ -15,13 +18,10 @@ def send_hours():
     """
     try:
         if request.method == "POST":
-            db = DB("Resty.db")
-            date_range = ""  # needs to be the dates of next Sunday to Saturday
+
             # match the user's days request
-            # session["student_ids"] = [student.student_id for student in student_list]
             user_id = request.form["user_id"]
-            working_days = request.form["days"]
-            dates = ''  # convert days to date
+            dates = request.form["dates"] # convert days to date - accepted formats YYYY-MM-DD OR YYYY-MM-DD
             start_time = request.form["hours"]
             end_time = request.form["end_time"]
             for date in dates:
@@ -31,13 +31,17 @@ def send_hours():
             return redirect("/send_hours")
             # session.pop('_flashes', None)
             # flash("Attendance failed to register")
+
         if request.method == "GET":
-            return render_template("send_hours.html", params={})
+            org_id = 1  # get user's org_id
+            start_date = datetimeHelp.next_weekday(dt.today(),6) # next sunday
+            end_date = datetimeHelp.next_weekday(dt.today(), 12)  # next sunday
+            raw_shifts = db.get_shifts_by_date_range(org_id, start_date, end_date)
+            shifts = [Shift(shift[0], shift[1], shift[2]) for shift in raw_shifts]
+            return render_template("send_hours.html", params={"shifts":shifts})
 
         else:
             return render_template("error_page.html")
-
-
 
     except IOError:
         print("Error")
@@ -64,3 +68,5 @@ if __name__ == "__main__":
         for date in dates:
             date ="\"{}\"".format(datetimeHelp.swap_date_format(date))  # fix formatting to insert date to DB
             db.insert_employee_times(user_id, date, start_time)
+    print(datetimeHelp.next_weekday(dt.today(),6))  # date of next sunday
+    print(datetimeHelp.next_weekday(dt.today(),12))

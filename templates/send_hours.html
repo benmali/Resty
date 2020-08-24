@@ -9,5 +9,28 @@
 <h3>Register date, start hour of shift where you can work</h3>
 <h3>Let user choose existing shifts from DB</h3>
 <h3>Choose Days for Week date-date - when user chooses day give him an option to select start time</h3>
+<table class="courses_table">
+            {% if params != {} %}
+                <thead>
+                    <tr>
+                        <td></td>
+                        <td>ShiftID</td>
+                        <td>Shift Date</td>
+                        <td>Shift Start Time</td>
+
+                    </tr>
+                </thead>
+
+                {% for shift in params["shifts"] %}
+                    <tr>
+                        <td>{{shift.shift_id}}</td>
+                        <td>{{shift.date}}</td>
+                        <td>{{shift.start_hour}}</td>
+                        <td>  Select this shift</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+
+    </table>
 </body>
 </html>

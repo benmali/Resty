@@ -37,6 +37,7 @@ CHOOSE SAME DAY SCHEDULING (OR DON'T!)
 
 ROUTES:
 /send_hours - post + get - webpage for employees to turn in shift options
+send the chosen dates as YYYY-MM-DD OR YYYY-MM-DD HH:MM, according to possible shifts
 /arrangement - shows the arrangement for the upcoming workweek
 /register - register user to the system
 /login - login into the system

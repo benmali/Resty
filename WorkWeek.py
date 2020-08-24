@@ -81,20 +81,21 @@ class WorkWeek:
                                     break
                                 else:
                                     chosen_employee = random.choice(possible_employees)
-                                    if shift.get_date() in chosen_employee.get_dates():
-                                        # makes sure employee isn't already scheduled to work
-                                        # same_day_scheduling is set to false by default
-                                        if chosen_employee not in day.get_employees() or same_day_scheduling:
-                                            if chosen_employee not in shift.get_bartenders():
-                                                shift.add_bartender(chosen_employee)
-                                                chosen_employee.add_shift(shift.get_shift_id())
-                                                shift_dic[i + 1] += [chosen_employee]
-                                                decrement_list = shift_dic[i]
-                                                decrement_list.remove(chosen_employee)
-                                                shift_dic[i] = decrement_list
-                                                num_scheduled_bartenders += 1
-                                                day.add_employee(chosen_employee)
-                                    # remove chosen employee anyway, not viable for scheduling in this shift anymore
+                                    if shift.get_date() in chosen_employee.get_dates().keys():
+                                        if shift.get_start_hour() == chosen_employee.get_dates()[shift.get_date()] or chosen_employee.get_dates()[shift.get_date()] == "Any":
+                                            # makes sure employee isn't already scheduled to work
+                                            # same_day_scheduling is set to false by default
+                                            if chosen_employee not in day.get_employees() or same_day_scheduling:
+                                                if chosen_employee not in shift.get_bartenders():
+                                                    shift.add_bartender(chosen_employee)
+                                                    chosen_employee.add_shift(shift.get_shift_id())
+                                                    shift_dic[i + 1] += [chosen_employee]
+                                                    decrement_list = shift_dic[i]
+                                                    decrement_list.remove(chosen_employee)
+                                                    shift_dic[i] = decrement_list
+                                                    num_scheduled_bartenders += 1
+                                                    day.add_employee(chosen_employee)
+                                        # remove chosen employee anyway, not viable for scheduling in this shift anymore
                                     possible_employees.remove(chosen_employee)
                                 prevent_loop += 1
                         for i in range(7):
@@ -120,20 +121,21 @@ class WorkWeek:
                                 else:
                                     chosen_employee = random.choice(possible_employees)
                                     # makes sure employee is able to work at this shift
-                                    if shift.get_date() in chosen_employee.get_dates():
-                                        # makes sure employee isn't already scheduled to work this day
-                                        if chosen_employee not in day.get_employees() or same_day_scheduling:
-                                            # not scheduled for this shift
-                                            if chosen_employee not in shift.get_waitresses():
-                                                shift.add_waitress(chosen_employee)
-                                                chosen_employee.add_shift(shift.get_shift_id())
-                                                shift_dic[i+1] += [chosen_employee]
-                                                decrement_list = shift_dic[i]
-                                                decrement_list.remove(chosen_employee)
-                                                shift_dic[i] = decrement_list
-                                                num_scheduled_waitresses += 1
-                                                day.add_employee(chosen_employee)
-                                        # remove chosen employee anyway, not viable for scheduling in this shift anymore
+                                    if shift.get_date() in chosen_employee.get_dates().keys():
+                                        if shift.get_start_hour() == chosen_employee.get_dates()[shift.get_date()] or chosen_employee.get_dates()[shift.get_date()] == "Any":
+                                            # makes sure employee isn't already scheduled to work this day
+                                            if chosen_employee not in day.get_employees() or same_day_scheduling:
+                                                # not scheduled for this shift
+                                                if chosen_employee not in shift.get_waitresses():
+                                                    shift.add_waitress(chosen_employee)
+                                                    chosen_employee.add_shift(shift.get_shift_id())
+                                                    shift_dic[i+1] += [chosen_employee]
+                                                    decrement_list = shift_dic[i]
+                                                    decrement_list.remove(chosen_employee)
+                                                    shift_dic[i] = decrement_list
+                                                    num_scheduled_waitresses += 1
+                                                    day.add_employee(chosen_employee)
+                                            # remove chosen employee anyway, not viable for scheduling in this shift anymore
                                     possible_employees.remove(chosen_employee)
                                 prevent_loop += 1
                         if not found_sol:

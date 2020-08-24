@@ -342,12 +342,13 @@ class DB:
             if self.check_for_db():  # check fot DB existence
                 connection = sqlite3.connect(self.name)
                 crsr = connection.cursor()
-                query = """SELECT E.employee_id, first_name, last_name, ET.date 
+                query = """SELECT E.employee_id, first_name, last_name, ET.date, ET.start_time
                             FROM Employee E 
                             JOIN Employee_Times ET ON E.employee_id=ET.employee_id 
                         JOIN User_in_Org UIO ON ET.employee_id=UIO.user_id
                         WHERE org_id={}
-                        AND ET.date BETWEEN \"{}\" AND \"{}\"""".format(org_id,start_date, end_date)
+                        AND ET.date BETWEEN \"{}\" AND \"{}\"
+                        ORDER BY E.employee_id,ET.date""".format(org_id,start_date, end_date)
                 crsr.execute(query)
                 data = crsr.fetchall()
                 connection.close()

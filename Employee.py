@@ -8,12 +8,18 @@ class Employee(User):
         :param e_id: employee's ID
         :param name: employee's full name
         :param positions: dictionary containing position:seniority
-        :param work_days: possible working days
+        :param work_days: possible working days: start_hour dictionary
         :param max_hours: set working hours limit
         """
         self.e_id = e_id
         self.name = name
-        self.work_days = work_days
+        self.work_days = {}
+        for day in work_days:
+            if len(day)==len("2020-01-01"):  # date has no start_hour attached
+                self.work_days[day] = "Any"
+            else:
+                date, time = day.split(" ") #YYYY-MM-DD HH:MM format
+                self.work_days[date] = time
         self.max_hours = max_hours
         self.shifts = []
         self.scheduled_hours = 0

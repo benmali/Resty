@@ -31,9 +31,15 @@ def arrangement():
         for employee in raw_employees:
             e_id = employee[0]
             if e_id in employee_dates:
-                employee_dates[e_id] += [employee[3]]
+                if employee[4]:  # Employee request a specific time a his shift
+                    employee_dates[e_id] += [employee[3] + " " + employee[4]]
+                else:
+                    employee_dates[e_id] += [employee[3]]
             else:
-                employee_dates[e_id] = [employee[3]]
+                if employee[4]:
+                    employee_dates[e_id] = [employee[3] + " " + employee[4]]
+                else:
+                    employee_dates[e_id] = [employee[3]]
             if e_id not in employee_names:
                 employee_names[e_id] = employee[1] + " " + employee[2]
         for e_id in employee_dates.keys():
@@ -81,9 +87,15 @@ if __name__ == "__main__":
     for employee in raw_employees:
         e_id = employee[0]
         if e_id in employee_dates:
-            employee_dates[e_id] += [employee[3]]
+            if employee[4]: # Employee request a specific time a his shift
+                employee_dates[e_id] += [employee[3]+ " " +employee[4]]
+            else:
+                employee_dates[e_id] += [employee[3]]
         else:
-            employee_dates[e_id] = [employee[3]]
+            if employee[4]:
+                employee_dates[e_id] = [employee[3]+ " " + employee[4]]
+            else:
+                employee_dates[e_id] = [employee[3]]
         if e_id not in employee_names:
             employee_names[e_id] = employee[1] + " " + employee[2]
     for e_id in employee_dates.keys():
