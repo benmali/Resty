@@ -6,15 +6,16 @@ from Employee import Employee
 from WorkWeek import WorkWeek
 from WorkDay import WorkDay
 from Shift import Shift
-import datetimeHelp
+
 db = DB("Resty.db")
 
 
 @arrangementBP.route("/arrangement", methods=["GET"])
 def arrangement():
     if request.method == "GET":
-
+        # make sure start_date is before end_date
         user_id = 1  # get logged in user's ID
+        same_day_scheduling = False # get this from user
         start_date = "1-1-2020"  # get this from user
         end_date = "7-1-2020"  # get this from user
         org_id = db.get_org_by_usr(user_id)[0][0]  # get user org_id
@@ -41,9 +42,9 @@ def arrangement():
             for position in positions:
                 positions_dic[position[0]] = position[1]
             employees.append(Employee(e_id, employee_names[e_id], positions_dic, employee_dates[e_id]))
-        raw_shifts = db.get_shifts_by_date_range(org_id, "1-1-2020", "7-1-2020")
+        raw_shifts = db.get_shifts_by_date_range(org_id, start_date, end_date)
         shifts = [Shift(shift[0], shift[1], shift[2]) for shift in raw_shifts]
-        raw_workdays = db.get_wdays_by_date_range(org_id, "1-1-2020", "7-1-2020")
+        raw_workdays = db.get_wdays_by_date_range(org_id, start_date, end_date)
         workdays = [WorkDay(org_id, wd[0], wd[1]) for wd in raw_workdays]
         i = 0
         # add shifts to corresponding days
@@ -56,7 +57,7 @@ def arrangement():
                     i += 1
 
         ww = WorkWeek(workdays)
-        dic, sol = ww.create_arrangement(org_id, "01-01-2020", "07-01-2020", employees)
+        dic, sol = ww.create_arrangement(employees, same_day_scheduling)
         for shift in sol:
             print(shift)
         print(dic)
@@ -66,6 +67,8 @@ def arrangement():
         params["dic"] = dic
         # pass solution to Front End, build as JS table
         return render_template("arrangement.html", params=params)
+    else:
+        return render_template("error_page.html")
 
 
 if __name__ == "__main__":
@@ -85,15 +88,15 @@ if __name__ == "__main__":
             employee_names[e_id] = employee[1] + " " + employee[2]
     for e_id in employee_dates.keys():
         positions = db.get_employee_positions(e_id)
-        positions_dic ={}
+        positions_dic = {}
         for position in positions:
             positions_dic[position[0]] = position[1]
-        employees.append(Employee(e_id,employee_names[e_id],positions_dic,employee_dates[e_id]))
+        employees.append(Employee(e_id, employee_names[e_id], positions_dic, employee_dates[e_id]))
     raw_shifts = db.get_shifts_by_date_range(org_id, "1-1-2020", "7-1-2020")
-    shifts = [Shift(shift[0],shift[1],shift[2]) for shift in raw_shifts]
+    shifts = [Shift(shift[0], shift[1], shift[2]) for shift in raw_shifts]
     raw_workdays = db.get_wdays_by_date_range(org_id, "1-1-2020", "7-1-2020")
     workdays = [WorkDay(org_id, wd[0], wd[1]) for wd in raw_workdays]
-    i=0
+    i = 0
     # add shifts to corresponding days
     for shift in shifts:
         while i < len(workdays):
@@ -101,11 +104,9 @@ if __name__ == "__main__":
                 workdays[i].add_shift(shift)
                 break
             else:
-                i+=1
-
+                i += 1
     ww = WorkWeek(workdays)
-    dic, sol = ww.create_arrangement(org_id, "01-01-2020", "07-01-2020", employees)
+    dic, sol = ww.create_arrangement(employees)
     for shift in sol:
         print(shift)
     print(dic)
-    #print(employees)

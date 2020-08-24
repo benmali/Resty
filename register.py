@@ -19,3 +19,5 @@ def register():
         return render_template("post_register.html")
     if request.method == "GET":
         return render_template("register.html")
+    else:
+        return render_template("error_page.html")

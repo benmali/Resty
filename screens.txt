@@ -33,18 +33,22 @@ FEATURES:
 EXPORT SOLUTIONS TO EXCEL, SEND TO EMAIL
 DRAG AND DROP SOLUTION ON UI
 RESTORE SOLUTION FROM DB
+CHOOSE SAME DAY SCHEDULING (OR DON'T!)
 
 ROUTES:
 /send_hours - post + get - webpage for employees to turn in shift options
 /arrangement - shows the arrangement for the upcoming workweek
 /register - register user to the system
+/login - login into the system
+/log_work - employees can log their working hours here
+/restore_shifts - restores stored solutions
 
 TODO:
 SQL QUERIES PROTECTION
 CREATE WORKWEEK TEMPLATE
 
 TOMMOROW:
-create restore arrangemment from DB
+create for specific hours
 add more routes
 update employee
 log working hours for employees

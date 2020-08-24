@@ -15,8 +15,7 @@ class WorkWeek:
         """
         self.work_days = work_days
 
-
-    def create_arrangement(self,org_id,start_date, end_date, employees=None):
+    def create_arrangement(self, employees, same_day_scheduling=False):
         """
         get needed shifts for each day
         for each shift find number of needed staff
@@ -28,36 +27,34 @@ class WorkWeek:
 
         try:
             db = DB("Resty.db")
+            # same_day_scheduling is a variable that can be changed to enable same day scheduling
             # get number of employees in eligible date range
             # employees should be a dictionary, mapping between dates and available employees
-            bartenders = [bartender for bartender in employees[:] if "bartender" in bartender.get_positions()]
-            waitresses = [waitress for waitress in employees[:] if "waitress" in waitress.get_positions()]
-            required_employees = 0
+            # create employee objects
+            # limit the number of shifts an employee can have per week to 10
+            # initialize dictionary where its' keys are number of shifts and values are list of employee ids which have
+            # this number of shifts assigned
+            # this method is good when you need even distribution between employees
+            # create dictionary to map num of shifts per employee
+            max_shifts = 10
+            max_num_employees = 0  # the maximum number of scheduled employees so far
+            required_employees = 0  # the number of scheduled employees needed for a full solution
+
             days = [day for day in self.work_days[:]]
             shifts = []
+            best = []
             for day in days:
                 for shift in day.get_shifts():
                     shifts.append(shift)
                     # sums up the needed number of employees to create full arrangement
                     required_employees += shift.get_num_barts() + shift.get_num_waits()
 
-
-            # create employee objects
-            # limit the number of shifts an employee can have per week to 10
-            max_shifts = 10
-            # initialize dictionary where its' keys are number of shifts and values are list of employee ids which have
-            # this number of shifts assigned
-            # this method is good when you need even distribution between employees
-            # create dictionary to map num of shifts per employee
-            best = []
-            max_num_employees = 0
             for j in range(50):  # try to find solution 50 times
                 num_employees = 0
                 shift_dic = {0: employees[:]} # reset dictionary if no solution was found
-                [employee.reset_shifts() for employee in employees[:]] # reset shifts for employees
+                [employee.reset_shifts() for employee in employees[:]]  # reset shifts for employees
                 solution = []
                 [day.reset_shifts() for day in self.work_days[:]]
-
                 for i in range(1, max_shifts + 1):
                     shift_dic[i] = []
                 for day in self.work_days:  # iterate over every day of the WordDay element
@@ -69,7 +66,7 @@ class WorkWeek:
                         num_scheduled_waitresses = 0
                         for i in range(7):
                             if num_bartenders == num_scheduled_bartenders:
-                                break  # scheduling shift is over, break look
+                                break  # scheduling shift is over, break loop
                             if shift_dic[i]:
                                 possible_employees = [bartender for bartender in shift_dic[i] if
                                                       "bartender" in bartender.get_positions()]
@@ -86,21 +83,19 @@ class WorkWeek:
                                     chosen_employee = random.choice(possible_employees)
                                     if shift.get_date() in chosen_employee.get_dates():
                                         # makes sure employee isn't already scheduled to work
-                                        if chosen_employee not in day.get_employees():
-                                            shift.add_bartender(chosen_employee)
-                                            chosen_employee.add_shift(shift.get_shift_id())
-                                            increment_list = shift_dic[i + 1]
-                                            increment_list.append(chosen_employee)
-                                            shift_dic[i + 1] = increment_list
-                                            decrement_list = shift_dic[i]
-                                            decrement_list.remove(chosen_employee)
-                                            shift_dic[i] = decrement_list
-                                            num_scheduled_bartenders += 1
-                                            day.add_employee(chosen_employee)
-                                        else:  # employee cant work at this date
-                                            possible_employees.remove(chosen_employee)
-                                    else:  # employee cant work at this date
-                                        possible_employees.remove(chosen_employee)
+                                        # same_day_scheduling is set to false by default
+                                        if chosen_employee not in day.get_employees() or same_day_scheduling:
+                                            if chosen_employee not in shift.get_bartenders():
+                                                shift.add_bartender(chosen_employee)
+                                                chosen_employee.add_shift(shift.get_shift_id())
+                                                shift_dic[i + 1] += [chosen_employee]
+                                                decrement_list = shift_dic[i]
+                                                decrement_list.remove(chosen_employee)
+                                                shift_dic[i] = decrement_list
+                                                num_scheduled_bartenders += 1
+                                                day.add_employee(chosen_employee)
+                                    # remove chosen employee anyway, not viable for scheduling in this shift anymore
+                                    possible_employees.remove(chosen_employee)
                                 prevent_loop += 1
                         for i in range(7):
                             if num_waitresses == num_scheduled_waitresses:
@@ -108,11 +103,11 @@ class WorkWeek:
                                 # prevent for shift reset to affect optimal solution
                                 solution.append(copy.deepcopy(shift))
                                 found_sol = True
-                                break  # scheduling shift is over, break look
+                                break  # scheduling shift is over, break loop
                             if shift_dic[i]:
                                 possible_employees = [waitress for waitress in shift_dic[i] if
                                                       "waitress" in waitress.get_positions()]  # filter out waitresses from
-                            else:
+                            else:  # no employees with "i" shifts
                                 continue
                             prevent_loop = 0
                             while num_waitresses > num_scheduled_waitresses:
@@ -126,31 +121,27 @@ class WorkWeek:
                                     chosen_employee = random.choice(possible_employees)
                                     # makes sure employee is able to work at this shift
                                     if shift.get_date() in chosen_employee.get_dates():
-                                        # makes sure employee isn't already scheduled to work
-                                        if chosen_employee not in day.get_employees():
-                                            shift.add_waitress(chosen_employee)
-                                            chosen_employee.add_shift(shift.get_shift_id())
-                                            increment_list = shift_dic[i + 1]
-                                            increment_list.append(chosen_employee)
-                                            shift_dic[i + 1] = increment_list
-                                            decrement_list = shift_dic[i]
-                                            decrement_list.remove(chosen_employee)
-                                            shift_dic[i] = decrement_list
-                                            num_scheduled_waitresses += 1
-                                            day.add_employee(chosen_employee)
-                                        else:  # employee cant work at this date
-                                            possible_employees.remove(chosen_employee)
-                                    else:  # employee cant work at this date
-                                        possible_employees.remove(chosen_employee)
+                                        # makes sure employee isn't already scheduled to work this day
+                                        if chosen_employee not in day.get_employees() or same_day_scheduling:
+                                            # not scheduled for this shift
+                                            if chosen_employee not in shift.get_waitresses():
+                                                shift.add_waitress(chosen_employee)
+                                                chosen_employee.add_shift(shift.get_shift_id())
+                                                shift_dic[i+1] += [chosen_employee]
+                                                decrement_list = shift_dic[i]
+                                                decrement_list.remove(chosen_employee)
+                                                shift_dic[i] = decrement_list
+                                                num_scheduled_waitresses += 1
+                                                day.add_employee(chosen_employee)
+                                        # remove chosen employee anyway, not viable for scheduling in this shift anymore
+                                    possible_employees.remove(chosen_employee)
                                 prevent_loop += 1
                         if not found_sol:
                             solution.append(copy.deepcopy(shift))
-                        #print(shift) # print shift when done to find missing spots
                     num_employees += len(day.get_employees())
-                if max_num_employees < num_employees:
-                    max_num_employees = num_employees
 
-                if max_num_employees == num_employees:  # best possible solution is maximum scheduled employees
+                if max_num_employees < num_employees:  # current solution is better than previous best
+                    max_num_employees = num_employees
                     best = solution[:]
                     best_dictionary = copy.deepcopy(shift_dic)
                     print("\"\"\"\"\"")
@@ -168,7 +159,7 @@ class WorkWeek:
         except IndexError:
             print("Cant create scheduling, no valid options")
 
-    def create_combinations(self, employees,):
+    def create_combinations(self, employees):
         for employee in employees:
             for date in employee.get_dates():
                 pass
@@ -197,7 +188,7 @@ if __name__ == "__main__":
     ww = WorkWeek([wd, wd2, wd3])
     # ww.create_arrangement("1-1-2020","4-1-2020",[e1,e2,e3,e4,e5,e6])
     # print(s1,s2)
-    dic, sol = ww.create_arrangement(100,"1-1-2020", "4-1-2020", [e1, e2, e3, e4, e5, e6])
+    dic, sol = ww.create_arrangement([e1, e2, e3, e4, e5, e6])
     for shift in sol:
         print (shift)
     print(dic)
@@ -249,10 +240,11 @@ if __name__ == "__main__":
     wd7.add_shift(s13)
     wd7.add_shift(s14)
     ww = WorkWeek([wd,wd2,wd3,wd4,wd5,wd6,wd7])
-    dic, sol = ww.create_arrangement(100,"1-1-2020", "7-1-2020", [e1, e2, e3, e4, e5, e6,e7,e8,e9,e10])
+    dic, sol = ww.create_arrangement([e1, e2, e3, e4, e5, e6,e7,e8,e9,e10])
     db = DB("Resty.db")
     print("best sol is")
     for shift in sol:
         print (shift)
     print(dic)
+
     #db.register_arrangement(sol)

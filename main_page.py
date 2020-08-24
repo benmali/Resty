@@ -8,3 +8,7 @@ def main_page():
     if request.method == "GET":
         session["sol"] = 0
         return render_template("main_page.html")
+
+    else:
+        return render_template("error_page.html")
+

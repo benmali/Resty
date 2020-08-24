@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restore</title>
+</head>
+<body>
+<br>
+<h3>Previously generated solutions</h3>
+<table class="courses_table">
+            {% if params != {} %}
+                {% for solution in params["solutions"] %}
+                    <thead>
+                        <tr>
+                            <td></td>
+                            <td>ShiftID</td>
+                            <td>Date</td>
+                            <td>Employees</td>
+                        </tr>
+                    </thead>
+
+                    {% for i in range(solution|length) %}
+                            <tr>
+                                {% for j in range(6) %}
+                                    <td>{{solution[i][j]}}</td>
+                                <td>  </td>
+                                {% endfor %}
+
+                            </tr>
+                    {% endfor %}
+                {% endfor %}
+            {% endif %}
+    </table>
+</body>
+
+</html>

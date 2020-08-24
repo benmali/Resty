@@ -43,6 +43,24 @@ def swap_date_format(date):
     return "-".join(date.split("-")[::-1])
 
 
+def compare_dates(date1, date2):
+    """
+    dates are YYYY-MM-DD formatted or YYYY-MM-DD HH:MM
+    :param date1:
+    :param date2:
+    :return:
+    """
+
+    if len(date1) == len(date2):
+        return date1==date2
+
+    if len(date1)<len(date2):
+        return date1==date2.split(" ")[0]
+    else:
+        return date2==date1.split(" ")[0]
+
+
+
 
 def convert_to_date(date_str):
     """
@@ -55,4 +73,4 @@ def convert_to_date(date_str):
 if __name__ == "__main__":
     print(convert_to_date('09-11-18'))
     date = datetime.datetime(2018, 6, 1)
-    print(convert_to_str(date))
+    print(compare_dates("2020-01-02 16:00", "2020-01-01"))

@@ -355,6 +355,28 @@ class DB:
         except IOError:
             print("Failed to get bartenders")
 
+    def restore_solutions_by_date(self, org_id, start_date, end_date):
+        try:
+            if self.check_for_db():  # check fot DB existence
+                connection = sqlite3.connect(self.name)
+                crsr = connection.cursor()
+                query = """SELECT S.shift_id,S.date, EIS.employee_id,E.first_name,E.last_name,solution
+                           FROM Employees_in_Shift EIS
+                           JOIN User_in_Org UIO ON EIS.employee_id=UIO.user_id
+                           JOIN Shift S ON EIS.shift_id=S.shift_id
+                           JOIN Employee E ON E.employee_id=UIO.user_id
+                           WHERE S.date BETWEEN \"{}\" AND \"{}\" 
+                           AND UIO.org_id={}
+                           ORDER BY solution, S.shift_id """.format(start_date, end_date, org_id)
+                crsr.execute(query)
+                data = crsr.fetchall()
+                connection.close()
+                return data
+
+        except IOError:
+            print("IO Error")
+
+
     def get_shifts_by_date_range(self, org_id, start_date, end_date): # in use
         """
         get shifts between given dates
@@ -478,8 +500,8 @@ class DB:
 if __name__ == "__main__":
     db = DB("Resty.db")
     db.create_db()
-    print(db.get_employees_by_date_range(100,"2020-01-01","2020-01-02"))
-
+    #print(db.get_employees_by_date_range(100,"2020-01-01","2020-01-02"))
+    print(db.restore_solutions_by_date(1,"2020-01-01","2020-01-07"))
 
 
     # print(db.get_bartenders())

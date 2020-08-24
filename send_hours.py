@@ -34,6 +34,11 @@ def send_hours():
         if request.method == "GET":
             return render_template("send_hours.html", params={})
 
+        else:
+            return render_template("error_page.html")
+
+
+
     except IOError:
         print("Error")
 

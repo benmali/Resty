@@ -3,6 +3,9 @@ from register import registerBP
 from send_hours import sendHoursBP
 from main_page import mainBP
 from arrangement import arrangementBP
+from login import loginBP
+from log_working_hours import log_workBP
+from restore_shifts import restore_shiftsBP
 app = Flask(__name__)
 
 #bp of main - get
@@ -15,7 +18,10 @@ app.register_blueprint(registerBP, url_prefix="")
 app.register_blueprint(sendHoursBP, url_prefix="")
 app.register_blueprint(mainBP, url_prefix="")
 app.register_blueprint(arrangementBP, url_prefix="")
-app.secret_key = "sxchahsdiu324wdasd"
+app.register_blueprint(loginBP, url_prefix="")
+app.register_blueprint(log_workBP, url_prefix="")
+app.register_blueprint(restore_shiftsBP, url_prefix="")
+app.secret_key = "sxchahsdiusd324wdasd"
 
 
 if __name__ == "__main__":
