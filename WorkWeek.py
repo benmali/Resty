@@ -48,11 +48,10 @@ class WorkWeek:
             # initialize dictionary where its' keys are number of shifts and values are list of employee ids which have
             # this number of shifts assigned
             # this method is good when you need even distribution between employees
-
             # create dictionary to map num of shifts per employee
             best = []
             max_num_employees = 0
-            for j in range(25):  # try to find solution 25 times
+            for j in range(50):  # try to find solution 50 times
                 num_employees = 0
                 shift_dic = {0: employees[:]} # reset dictionary if no solution was found
                 [employee.reset_shifts() for employee in employees[:]] # reset shifts for employees

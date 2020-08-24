@@ -146,6 +146,23 @@ class DB:
         connection.commit()
         connection.close()
 
+    def sol_exists(self, org_id):
+        """
+        find if there is already a solution, if there is
+        return the max solution number
+        :return: max solution number or None
+        """
+        connection = sqlite3.connect(self.name)
+        crsr = connection.cursor()
+        query = """SELECT MAX(solution)
+                   FROM Employees_in_Shift EIS 
+                   JOIN User_in_Org UIO ON EIS.employee_id=UIO.user_id
+                   WHERE UIO.org_id={}""".format(org_id)
+        crsr.execute(query)
+        data = crsr.fetchone()
+        connection.close()
+        return data
+
     def user_exists(self, user_id):
         """
         find if user exists in DB

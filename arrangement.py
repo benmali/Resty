@@ -13,10 +13,17 @@ db = DB("Resty.db")
 @arrangementBP.route("/arrangement", methods=["GET"])
 def arrangement():
     if request.method == "GET":
-        session["sol"] +=1
+
         user_id = 1  # get logged in user's ID
+        start_date = "1-1-2020"  # get this from user
+        end_date = "7-1-2020"  # get this from user
         org_id = db.get_org_by_usr(user_id)[0][0]  # get user org_id
-        raw_employees = db.get_employees_by_date_range(org_id, "1-1-2020", "7-1-2020")
+        sol_num = db.sol_exists(org_id)  # gets the max sol number from DB
+        if sol_num[0]:  # if solution exists in DB
+            session["sol"] = sol_num[0] + 1
+        else:
+            session["sol"] += 1
+        raw_employees = db.get_employees_by_date_range(org_id, start_date, end_date)
         employee_dates = {}  # map e_id to dates
         employee_names = {}
         employees = []

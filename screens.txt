@@ -22,12 +22,30 @@ view arrangement - table view to show logic output
 
 
 employee inherits from user - has positions in OOP not in DB (user may be sys admin)
-create testing SQL
+
 update SHift with end time 
 WOrkweek template
 add screen to update employees,
 register an employee (create positions)
 
-routes:
-/send_hours - post + get - webpage for employees to turn in shift options
+FEATURES:
 
+EXPORT SOLUTIONS TO EXCEL, SEND TO EMAIL
+DRAG AND DROP SOLUTION ON UI
+RESTORE SOLUTION FROM DB
+
+ROUTES:
+/send_hours - post + get - webpage for employees to turn in shift options
+/arrangement - shows the arrangement for the upcoming workweek
+/register - register user to the system
+
+TODO:
+SQL QUERIES PROTECTION
+CREATE WORKWEEK TEMPLATE
+
+TOMMOROW:
+create restore arrangemment from DB
+add more routes
+update employee
+log working hours for employees
+create register user with hash
