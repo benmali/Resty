@@ -2,7 +2,7 @@ import datetime
 
 
 class WorkDay:
-    def __init__(self,org_id, date,manager):
+    def __init__(self,org_id, date,manager=None):
         """
         :param date: datetime object
         :param start_hour: datetime object
@@ -21,6 +21,9 @@ class WorkDay:
 
     def add_employee(self, employee):
         self.employees.append(employee)
+
+    def set_shifts(self, shifts):
+        self.shifts = shifts
 
     def reset_shifts(self):
         for shift in self.shifts:
@@ -57,7 +60,6 @@ class WorkDay:
 
     def get_shifts(self):
         return self.shifts
-
 
 if __name__ == "__main__":
     pass

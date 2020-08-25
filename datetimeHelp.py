@@ -42,6 +42,23 @@ def swap_date_format(date):
     """
     return "-".join(date.split("-")[::-1])
 
+def day_to_date(day, dates):
+    """
+    Convert Sunday to next Sunday's date etc.
+    :param day: Sunday,Monday..
+    :param dates: Corresponding date
+    :return: date
+    """
+    switch = {
+        "Sunday": dates[0],
+        "Monday": dates[1],
+        "Tuesday": dates[2],
+        'Wednesday': dates[3],
+        "Thursday": dates[4],
+        "Friday": dates[5],
+        "Saturday": dates[6]
+    }
+    return switch[day]
 
 def compare_dates(date1, date2):
     """

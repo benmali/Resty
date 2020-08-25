@@ -1,6 +1,8 @@
 from Shift import Shift
 from WorkDay import WorkDay
 from Employee import Employee
+import datetimeHelp
+from datetime import date as dt
 import random
 import copy
 import itertools
@@ -14,6 +16,61 @@ class WorkWeek:
         :param work_days: a list of work day objects
         """
         self.work_days = work_days
+
+    @classmethod
+    def from_template(cls, org_id, template_no):
+        """
+        initialize WorkWeek from template
+        :param org_id: Org id
+        :param template_no: number of template in DB user chose
+        :return: WorkWeek object
+        """
+        try:
+            db = DB("Resty.db")
+            templates = db.get_ww_templates(org_id)  # get all the templates
+            templates_dic = {}
+            for shift in templates:
+                template = shift[-1]
+                if template in templates_dic:
+                    templates_dic[template] +=[shift]
+                else:
+                    templates_dic[template] = [shift]
+            if template_no in templates_dic:  # user requested an existing template
+                chosen_template = templates_dic[template_no]
+                dates = [str(datetimeHelp.next_weekday(dt.today(), i)) for i in range(6, 13)]  # next week dates
+                workdays = {}
+                workdays_lst = []
+                for shift in chosen_template:
+                    if shift[0] in workdays:
+                        workdays[shift[0]] += [shift]
+                        # create workday
+                    else:
+                        workdays[shift[0]] = [shift]
+                print(workdays)
+                shift_id = db.get_max_shift_id(org_id)[0] +1
+                for day, shifts in workdays.items():
+                    date = datetimeHelp.day_to_date(day,dates)
+                    shift_lst = [Shift(shift_id+i, date, shifts[i][1],shifts[i][2],shifts[i][3]) for i in range(len(shifts))]
+                    shift_id += len(shifts)
+                    wd = WorkDay(org_id,date)
+                    wd.set_shifts(shift_lst)
+                    workdays_lst.append(wd)
+                return cls(workdays_lst)
+
+            else:
+                print("template doesn't exist")
+
+
+            #create Workdays from data, add them together to create WW
+
+        except IOError:
+            print("Failed to create template from restore")
+
+    def create_templates_from_DB(self):
+        """
+        restore WorkWeek templates from DB to be displayed
+        :return:
+        """
 
     def create_arrangement(self, employees, same_day_scheduling=False):
         """
@@ -169,84 +226,85 @@ class WorkWeek:
 
 
 if __name__ == "__main__":
-    s1 = Shift(1, "1-1-2020", "16:00")
-    s2 = Shift(2, "2-1-2020", "16:00")
-    s3 = Shift(3, "2-1-2020", "19:00")
-    s4 = Shift(4, "3-1-2020", "19:00")
-    wd = WorkDay("1-1-2020", "16:00", "Tom")
-    # protect against inserting shifts with different date than day to workday
-    wd.add_shift(s1)
-    wd2 = WorkDay("2-1-2020", "16:00", "Tom")
-    wd2.add_shift(s2)
-    wd2.add_shift(s3)
-    wd3 = WorkDay("3-1-20", "16:00", "Tom")
-    wd3.add_shift(s4)
-    e1 = Employee(1, 1, {"bartender": 1}, ["1-1-2020"])
-    e2 = Employee(2, 2, {"waitress": 1}, ["2-1-2020"])
-    e3 = Employee(3, 3, {"bartender": 1}, ["1-1-2020", "2-1-2020", "3-1-2020"])
-    e4 = Employee(4, 4, {"bartender": 1}, ["2-1-2020"])
-    e5 = Employee(5, 5, {"waitress": 2, "bartender": 1}, ["2-1-2020", "3-1-2020"])
-    e6 = Employee(6, 6, {"waitress": 1}, ["1-1-2020"])
-    ww = WorkWeek([wd, wd2, wd3])
-    # ww.create_arrangement("1-1-2020","4-1-2020",[e1,e2,e3,e4,e5,e6])
-    # print(s1,s2)
-    dic, sol = ww.create_arrangement([e1, e2, e3, e4, e5, e6])
-    for shift in sol:
-        print (shift)
-    print(dic)
-    # test case without e6 to see what happens when script cant complete scheduling
-    # --- test 2 ----#
-    s1 = Shift(1, "1-1-2020", "16:00")
-    s2 = Shift(2, "1-1-2020", "19:00")
-    s3 = Shift(3, "2-1-2020", "16:00")
-    s4 = Shift(4, "2-1-2020", "19:00")
-    s5 = Shift(5, "3-1-2020", "16:00")
-    s6 = Shift(6, "3-1-2020", "19:00")
-    s7 = Shift(7, "4-1-2020", "16:00")
-    s8 = Shift(8, "4-1-2020", "19:00")
-    s9 = Shift(9, "5-1-2020", "16:00")
-    s10 = Shift(10, "5-1-2020", "19:00")
-    s11 = Shift(11, "6-1-2020", "16:00")
-    s12 = Shift(12, "6-1-2020", "19:00")
-    s13 = Shift(13, "7-1-2020", "16:00")
-    s14 = Shift(14, "7-1-2020", "19:00")
-    e1 = Employee(1, 1, {"bartender": 1}, ["1-1-2020","7-1-2020","3-1-2020"])
-    e2 = Employee(2, 2, {"waitress": 1}, ["1-1-2020","2-1-2020","4-1-2020","7-1-2020"])
-    e3 = Employee(3, 3, {"bartender": 1}, ["1-1-2020", "2-1-2020", "3-1-2020", "7-1-2020"])
-    e4 = Employee(4, 4, {"bartender": 1}, ["2-1-2020","4-1-2020", "5-1-2020","6-1-2020"])
-    e5 = Employee(5, 5, {"waitress": 2, "bartender": 1}, ["2-1-2020" ,"3-1-2020"]) # remove 3-1-20 to get best non viable solution
-    e6 = Employee(6, 6, {"waitress": 1, "bartender": 1}, ["1-1-2020", "6-1-2020", "5-1-2020"])
-    e7 = Employee(7, 7, {"waitress": 1}, ["1-1-2020","7-1-2020","5-1-2020"])
-    e8 = Employee(8, 8, {"waitress": 1,"bartender": 1}, ["6-1-2020", "5-1-2020"])
-    e9 = Employee(9, 9, {"waitress": 1}, ["3-1-2020", "4-1-2020","6-1-2020"])
-    e10 = Employee(10, 10, {"bartender": 1,"waitress":1}, ["1-1-2020", "2-1-2020", "4-1-2020", "7-1-2020"])
-    wd = WorkDay("1-1-2020", "16:00", "Tom")
-    wd2 = WorkDay("2-1-2020", "16:00", "Tom")
-    wd3 = WorkDay("3-1-2020", "16:00", "Tom")
-    wd4 = WorkDay("4-1-2020", "16:00", "Tom")
-    wd5 = WorkDay("5-1-2020", "16:00", "Tom")
-    wd6= WorkDay("6-1-2020", "16:00", "Tom")
-    wd7 = WorkDay("7-1-2020", "16:00", "Tom")
-    wd.add_shift(s1)
-    wd.add_shift(s2)
-    wd2.add_shift(s3)
-    wd2.add_shift(s4)
-    wd3.add_shift(s5)
-    wd3.add_shift(s6)
-    wd4.add_shift(s7)
-    wd4.add_shift(s8)
-    wd5.add_shift(s9)
-    wd5.add_shift(s10)
-    wd6.add_shift(s11)
-    wd6.add_shift(s12)
-    wd7.add_shift(s13)
-    wd7.add_shift(s14)
-    ww = WorkWeek([wd,wd2,wd3,wd4,wd5,wd6,wd7])
-    dic, sol = ww.create_arrangement([e1, e2, e3, e4, e5, e6,e7,e8,e9,e10])
-    db = DB("Resty.db")
-    print("best sol is")
-    for shift in sol:
-        print (shift)
-    print(dic)
-
+    # s1 = Shift(1, "1-1-2020", "16:00")
+    # s2 = Shift(2, "2-1-2020", "16:00")
+    # s3 = Shift(3, "2-1-2020", "19:00")
+    # s4 = Shift(4, "3-1-2020", "19:00")
+    # wd = WorkDay("1-1-2020", "16:00", "Tom")
+    # # protect against inserting shifts with different date than day to workday
+    # wd.add_shift(s1)
+    # wd2 = WorkDay("2-1-2020", "16:00", "Tom")
+    # wd2.add_shift(s2)
+    # wd2.add_shift(s3)
+    # wd3 = WorkDay("3-1-20", "16:00", "Tom")
+    # wd3.add_shift(s4)
+    # e1 = Employee(1, 1, {"bartender": 1}, ["1-1-2020"])
+    # e2 = Employee(2, 2, {"waitress": 1}, ["2-1-2020"])
+    # e3 = Employee(3, 3, {"bartender": 1}, ["1-1-2020", "2-1-2020", "3-1-2020"])
+    # e4 = Employee(4, 4, {"bartender": 1}, ["2-1-2020"])
+    # e5 = Employee(5, 5, {"waitress": 2, "bartender": 1}, ["2-1-2020", "3-1-2020"])
+    # e6 = Employee(6, 6, {"waitress": 1}, ["1-1-2020"])
+    # ww = WorkWeek([wd, wd2, wd3])
+    # # ww.create_arrangement("1-1-2020","4-1-2020",[e1,e2,e3,e4,e5,e6])
+    # # print(s1,s2)
+    # dic, sol = ww.create_arrangement([e1, e2, e3, e4, e5, e6])
+    # for shift in sol:
+    #     print (shift)
+    # print(dic)
+    # # test case without e6 to see what happens when script cant complete scheduling
+    # # --- test 2 ----#
+    # s1 = Shift(1, "1-1-2020", "16:00")
+    # s2 = Shift(2, "1-1-2020", "19:00")
+    # s3 = Shift(3, "2-1-2020", "16:00")
+    # s4 = Shift(4, "2-1-2020", "19:00")
+    # s5 = Shift(5, "3-1-2020", "16:00")
+    # s6 = Shift(6, "3-1-2020", "19:00")
+    # s7 = Shift(7, "4-1-2020", "16:00")
+    # s8 = Shift(8, "4-1-2020", "19:00")
+    # s9 = Shift(9, "5-1-2020", "16:00")
+    # s10 = Shift(10, "5-1-2020", "19:00")
+    # s11 = Shift(11, "6-1-2020", "16:00")
+    # s12 = Shift(12, "6-1-2020", "19:00")
+    # s13 = Shift(13, "7-1-2020", "16:00")
+    # s14 = Shift(14, "7-1-2020", "19:00")
+    # e1 = Employee(1, 1, {"bartender": 1}, ["1-1-2020","7-1-2020","3-1-2020"])
+    # e2 = Employee(2, 2, {"waitress": 1}, ["1-1-2020","2-1-2020","4-1-2020","7-1-2020"])
+    # e3 = Employee(3, 3, {"bartender": 1}, ["1-1-2020", "2-1-2020", "3-1-2020", "7-1-2020"])
+    # e4 = Employee(4, 4, {"bartender": 1}, ["2-1-2020","4-1-2020", "5-1-2020","6-1-2020"])
+    # e5 = Employee(5, 5, {"waitress": 2, "bartender": 1}, ["2-1-2020" ,"3-1-2020"]) # remove 3-1-20 to get best non viable solution
+    # e6 = Employee(6, 6, {"waitress": 1, "bartender": 1}, ["1-1-2020", "6-1-2020", "5-1-2020"])
+    # e7 = Employee(7, 7, {"waitress": 1}, ["1-1-2020","7-1-2020","5-1-2020"])
+    # e8 = Employee(8, 8, {"waitress": 1,"bartender": 1}, ["6-1-2020", "5-1-2020"])
+    # e9 = Employee(9, 9, {"waitress": 1}, ["3-1-2020", "4-1-2020","6-1-2020"])
+    # e10 = Employee(10, 10, {"bartender": 1,"waitress":1}, ["1-1-2020", "2-1-2020", "4-1-2020", "7-1-2020"])
+    # wd = WorkDay("1-1-2020", "16:00", "Tom")
+    # wd2 = WorkDay("2-1-2020", "16:00", "Tom")
+    # wd3 = WorkDay("3-1-2020", "16:00", "Tom")
+    # wd4 = WorkDay("4-1-2020", "16:00", "Tom")
+    # wd5 = WorkDay("5-1-2020", "16:00", "Tom")
+    # wd6= WorkDay("6-1-2020", "16:00", "Tom")
+    # wd7 = WorkDay("7-1-2020", "16:00", "Tom")
+    # wd.add_shift(s1)
+    # wd.add_shift(s2)
+    # wd2.add_shift(s3)
+    # wd2.add_shift(s4)
+    # wd3.add_shift(s5)
+    # wd3.add_shift(s6)
+    # wd4.add_shift(s7)
+    # wd4.add_shift(s8)
+    # wd5.add_shift(s9)
+    # wd5.add_shift(s10)
+    # wd6.add_shift(s11)
+    # wd6.add_shift(s12)
+    # wd7.add_shift(s13)
+    # wd7.add_shift(s14)
+    # ww = WorkWeek([wd,wd2,wd3,wd4,wd5,wd6,wd7])
+    # dic, sol = ww.create_arrangement([e1, e2, e3, e4, e5, e6,e7,e8,e9,e10])
+    # db = DB("Resty.db")
+    # print("best sol is")
+    # for shift in sol:
+    #     print (shift)
+    # print(dic)
+    ww = WorkWeek.from_template(1,1)
+    print("sd")
     #db.register_arrangement(sol)

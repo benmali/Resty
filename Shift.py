@@ -1,6 +1,6 @@
-from Employee import Employee
-from datetimeHelp import convert_to_str, convert_to_date, get_day
 
+import datetimeHelp
+from datetime import date as dt
 from DB import DB
 
 
@@ -30,6 +30,45 @@ class Shift:
                                                                                self.bartenders,
                                                                                self.waitresses)
 
+    @classmethod
+    def create_from_template(cls, org_id, template_no):
+        """
+        Create shifts based on template and insert to DB
+        :return:
+        """
+        try:
+            db = DB("Resty.db")
+            templates = db.get_ww_templates(org_id)  # get all the templates
+            templates_dic = {}
+            for shift in templates:
+                template = shift[-1]
+                if template in templates_dic:
+                    templates_dic[template] += [shift]
+                else:
+                    templates_dic[template] = [shift]
+            if template_no in templates_dic:  # user requested an existing template
+                chosen_template = templates_dic[template_no]
+                dates = [str(datetimeHelp.next_weekday(dt.today(), i)) for i in range(6, 13)]  # next week dates
+                workdays = {}
+                for shift in chosen_template:
+                    if shift[0] in workdays:
+                        workdays[shift[0]] += [shift]
+                        # create workday
+                    else:
+                        workdays[shift[0]] = [shift]
+                print(workdays)
+                shift_id = db.get_max_shift_id(org_id)[0] + 1
+                for day, shifts in workdays.items():
+                    date = datetimeHelp.day_to_date(day, dates)
+                    date = "\"{}\"".format(date)
+                    for i in range(len(shifts)):
+                        shift_id+=i
+                        start_hour ="\"{}\"".format(shifts[i][1])
+                        db.insert_shift(org_id, shift_id, start_hour, date, shifts[i][2], shifts[i][3])
+                    shift_id += 1
+        except IOError:
+            print("IO Error")
+
     def create_employee(self):
         """
         create Employee from data
@@ -54,7 +93,7 @@ class Shift:
         """
         :return: String day name - "Monday"
         """
-        day = convert_to_date(self.date)
+        day = datetimeHelp.convert_to_date(self.date)
         return day.strftime("%A")
 
     def get_date(self):
@@ -124,3 +163,4 @@ if __name__ == "__main__":
     print(first_shift.get_day())
     db = DB("Resty.db")
     data = db.get_employees()
+    Shift.create_from_template(1, 1)

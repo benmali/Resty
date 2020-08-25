@@ -32,8 +32,9 @@ FEATURES:
 
 EXPORT SOLUTIONS TO EXCEL, SEND TO EMAIL
 DRAG AND DROP SOLUTION ON UI
-RESTORE SOLUTION FROM DB
-CHOOSE SAME DAY SCHEDULING (OR DON'T!)
+RESTORE SOLUTION FROM DB - DONE
+CREATE SHIFTS FROM TEMPLATE - DONE
+CHOOSE SAME DAY SCHEDULING (OR DON'T!) - DONE
 
 ROUTES:
 /send_hours - post + get - webpage for employees to turn in shift options
@@ -47,6 +48,7 @@ send the chosen dates as YYYY-MM-DD OR YYYY-MM-DD HH:MM, according to possible s
 TODO:
 SQL QUERIES PROTECTION
 CREATE WORKWEEK TEMPLATE
+SPELL CHECK FOR DAY NAMES AND ANY USER INPUT
 
 TOMMOROW:
 create for specific hours
@@ -54,3 +56,15 @@ add more routes
 update employee
 log working hours for employees
 create register user with hash
+
+
+
+TEMPLDATE PROCESS:
+Creating templates will be on UI and will be recorded onto the DB
+pull template from DB, display to user
+user selects template
+from template, create new shift objects in DB for the new week, insert to DB
+employees send their hours
+create arrangement
+
+

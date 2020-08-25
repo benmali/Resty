@@ -109,6 +109,16 @@ class DB:
                              user_id VARCAHR(50) NOT NULL,
                              PRIMARY KEY (org_id, user_id)
                              );"""
+                query11="""
+                           CREATE TABLE Week_Template
+                           (
+                           org_id INT NOT NULL,
+                           day VARCHAR(50) NOT NULL,
+                           start_hour DATE NOT NULL,
+                           num_bartenders INT NOT NULL, 
+                           num_waitresses INT NOT NULL,
+                           template_no INT NOT NULL,
+                           PRIMARY KEY (org_id, day,start_hour,num_bartenders,num_waitresses,template_no));"""
 
 
                 crsr.execute(query)
@@ -121,6 +131,7 @@ class DB:
                 crsr.execute(query8)  # finished shifts
                 crsr.execute(query9)
                 crsr.execute(query10)
+                crsr.execute(query11)
                 connection.commit()
                 connection.close()
 
@@ -316,6 +327,55 @@ class DB:
         except IOError:
             print("Failed to get managers")
 
+    def insert_shift(self, org_id, shift_id, start_hour, date, num_bartenders, num_waitresses,tip=0):
+        try:
+            if self.check_for_db():  # check for DB existence
+                connection = sqlite3.connect(self.name)
+                crsr = connection.cursor()
+                query = """INSERT INTO Shift VALUES ({},{},{},{},{},{},{})""".format(org_id,
+                                                                                  shift_id,
+                                                                                  start_hour,
+                                                                                  date,
+                                                                                  num_bartenders,
+                                                                                  num_waitresses,tip)
+                crsr.execute(query)
+                connection.commit()
+                connection.close()
+        except IOError:
+            print("Failed to insert Shifts")
+
+    def get_max_shift_id(self,org_id):
+        try:
+            if self.check_for_db():  # check for DB existence
+                connection = sqlite3.connect(self.name)
+                crsr = connection.cursor()
+                query = """SELECT MAX(shift_id)
+                            FROM Shift
+                            WHERE org_id={}""".format(org_id)
+                crsr.execute(query)
+                data= crsr.fetchone()
+                connection.close()
+                return data
+        except IOError:
+            print("Error")
+
+
+
+    def get_ww_templates(self, org_id):
+        try:
+            if self.check_for_db():  # check for DB existence
+                connection = sqlite3.connect(self.name)
+                crsr = connection.cursor()
+                query="""SELECT WT.day,start_hour,num_bartenders,num_waitresses,template_no
+                         FROM Week_Template WT
+                         WHERE org_id={}
+                         ORDER BY template_no""".format(org_id)
+                crsr.execute(query)
+                data = crsr.fetchall()
+                connection.close()
+                return data
+        except IOError:
+            print("Failed to get template")
     def get_day_shifts(self, date):
         try:
             if self.check_for_db():  # check for DB existence
@@ -356,7 +416,7 @@ class DB:
         except IOError:
             print("Failed to get bartenders")
 
-    def restore_solutions_by_date(self, org_id, start_date, end_date):
+    def restore_solutions_by_date(self, org_id, start_date, end_date): # in use
         try:
             if self.check_for_db():  # check fot DB existence
                 connection = sqlite3.connect(self.name)
