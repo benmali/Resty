@@ -4,6 +4,7 @@ from classes import datetimeHelp
 from classes.Employee import Employee
 from classes.Shift import Shift
 from datetime import date as dt
+import json
 
 
 sendHoursBP = Blueprint("send_hours", __name__, static_folder="static", template_folder="templates")
@@ -39,7 +40,9 @@ def send_hours():
             end_date = datetimeHelp.next_weekday(dt.today(), 12)  # next week's Saturday
             raw_shifts = db.get_shifts_by_date_range(org_id, start_date, end_date)
             shifts = [Shift(shift[0], shift[1], shift[2]) for shift in raw_shifts]
-            return render_template("send_hours.html", params={"shifts":shifts})
+            jlist = [json.dumps(s.__dict__) for s in shifts]
+
+            return render_template("send_hours.html", params={"shifts":shifts,"json":jlist})
 
         else:
             return render_template("error_page.html")

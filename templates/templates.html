@@ -7,15 +7,12 @@
 <body>
 <h3>View available templates</h3>
           {% if params != {} %}
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
+            {% with templates = params["json"] %}
+<h3>{{params["json"]}}</h3>
                   <script>
-                    var messages = {{ messages | safe }};
-                    for (var i=0; i<messages.length; i++) {
-                      alert(messages[i]);
-                    }
+                    var templates = {{ templates | safe }};
+                    alert(templates);
                   </script>
-                {% endif %}
             {% endwith %}
             {% for template_no,template in params["templates"].items() %}
             <table>
