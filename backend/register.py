@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template,request, session,flash
 import hashlib
-import DB
+import classes.DB
 registerBP = Blueprint("register", __name__, static_folder="static", template_folder="templates")
 
 @registerBP.route("/register",methods=["POST", "GET"])

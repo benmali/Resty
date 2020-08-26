@@ -2,7 +2,8 @@ import sqlite3
 import os
 import re
 import logging
-from Employee import Employee
+from classes.Employee import Employee
+
 
 
 class DB:
@@ -88,11 +89,10 @@ class DB:
                             CREATE TABLE Employee_Shift
                             (
                                 employee_id INT NOT NULL,
-                                shift_id INT NOT NULL,
+                                date DATE NOT NULL,
                                 start_hour DATE NOT NULL,
                                 end_hour DATE NOT NULL,
-                                date DATE NOT NULL,
-                                PRIMARY KEY (shift_id, employee_id)
+                                PRIMARY KEY (employee_id, date)
                             );"""
                 query9 = """
                             CREATE TABLE Organization
@@ -190,6 +190,21 @@ class DB:
             return False
         return True
 
+    def logged_shift_exists(self, employee_id, date):
+        try:
+            if self.check_for_db():
+                connection = sqlite3.connect(self.name)
+                crsr = connection.cursor()
+                query = """SELECT * FROM Employee_Shift WHERE employee_id={} AND date={}""".format(employee_id, date)
+                crsr.execute(query)
+                data = crsr.fetchone()
+                connection.close()
+                if not data:
+                    return False
+                return True
+        except IOError:
+            print("DB Error")
+
     def employee_time_exists(self,employee_id,date):
         connection = sqlite3.connect(self.name)
         crsr = connection.cursor()
@@ -201,6 +216,29 @@ class DB:
             return False
         return True
 
+    def log_shift(self, employee_id, date, start_hour, end_hour):
+        """
+        log done shifts into DB
+        :param employee_id: ID of the employee
+        :param date: date
+        :param start_hour: start hour
+        :param end_hour: end hour
+        :return:
+        """
+        try:
+            if not self.logged_shift_exists(employee_id,date):
+                if not self.check_for_db():  # if DB doesn't exist create it
+                    self.create_db()
+                connection = sqlite3.connect(self.name)
+                crsr = connection.cursor()
+                query = """INSERT INTO Employee_Shift VALUES ({},\"{}\",\"{}\",\"{}\")""".format(employee_id,date,start_hour,end_hour)
+                crsr.execute(query)
+                connection.commit()
+                connection.close()
+        except IOError:
+            print("DB Error")
+
+
     def insert_employee_times(self,employee_id,date, start_time="NULL", end_time="NULL"):
         """
         insert the arrangement request by the Employee to DB, Employee_Times table
@@ -210,19 +248,23 @@ class DB:
         :param end_time:
         :return:
         """
-        if not self.employee_time_exists(employee_id, date):
-            if not self.check_for_db():  # if DB doesn't exist create it
-                self.create_db()
-            connection = sqlite3.connect(self.name)
-            crsr = connection.cursor()
-            start_time="NULL"
-            query = """INSERT INTO Employee_Times VALUES ({},{},{},{})""".format(employee_id, date, start_time, end_time)
+        try:
+            if not self.employee_time_exists(employee_id, date):
+                if not self.check_for_db():  # if DB doesn't exist create it
+                    self.create_db()
+                connection = sqlite3.connect(self.name)
+                crsr = connection.cursor()
+                start_time="NULL"
+                query = """INSERT INTO Employee_Times VALUES ({},{},{},{})""".format(employee_id, date, start_time, end_time)
 
-            crsr.execute(query)
-            connection.commit()
-            connection.close()
-            return True
-        return False
+                crsr.execute(query)
+                connection.commit()
+                connection.close()
+                return True
+            return False
+
+        except IOError:
+            print(" DBError")
 
     def insert_user(self, user_id, first_name, last_name, phone, pass_hash):
         """

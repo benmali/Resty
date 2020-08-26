@@ -1,12 +1,12 @@
-from Shift import Shift
-from WorkDay import WorkDay
-from Employee import Employee
-import datetimeHelp
+from classes.Shift import Shift
+from classes.WorkDay import WorkDay
+from classes.Employee import Employee
+from classes import datetimeHelp
 from datetime import date as dt
 import random
 import copy
 import itertools
-from DB import DB
+from classes.DB import DB
 
 
 class WorkWeek:
@@ -18,7 +18,7 @@ class WorkWeek:
         self.work_days = work_days
 
     @classmethod
-    def from_template(cls, org_id, template_no):
+    def from_template(cls, org_id, template_no): # for future use
         """
         initialize WorkWeek from template
         :param org_id: Org id
@@ -60,7 +60,6 @@ class WorkWeek:
             else:
                 print("template doesn't exist")
 
-
             #create Workdays from data, add them together to create WW
 
         except IOError:
@@ -96,7 +95,6 @@ class WorkWeek:
             max_shifts = 10
             max_num_employees = 0  # the maximum number of scheduled employees so far
             required_employees = 0  # the number of scheduled employees needed for a full solution
-
             days = [day for day in self.work_days[:]]
             shifts = []
             best = []

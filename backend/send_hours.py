@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, session, flash, redirect
-from DB import DB
-import datetimeHelp
-from Employee import Employee
-from Shift import Shift
+from classes.DB import DB
+from classes import datetimeHelp
+from classes.Employee import Employee
+from classes.Shift import Shift
 from datetime import date as dt
 
 

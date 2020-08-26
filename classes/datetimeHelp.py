@@ -60,32 +60,35 @@ def day_to_date(day, dates):
     }
     return switch[day]
 
-def compare_dates(date1, date2):
-    """
-    dates are YYYY-MM-DD formatted or YYYY-MM-DD HH:MM
-    :param date1:
-    :param date2:
-    :return:
-    """
 
-    if len(date1) == len(date2):
-        return date1==date2
-
-    if len(date1)<len(date2):
-        return date1==date2.split(" ")[0]
-    else:
-        return date2==date1.split(" ")[0]
+def day_to_n(day):
+    """
+    Convert Day name to number
+    :param day: Sunday,Monday..
+    :param dates: Corresponding date
+    :return: date
+    """
+    switch = {
+        "Sunday": 1,
+        "Monday": 2,
+        "Tuesday": 3,
+        'Wednesday': 4,
+        "Thursday": 5,
+        "Friday": 6,
+        "Saturday": 7
+    }
+    return switch[day]
 
 
 def next_weekday(d, weekday):
     """
-    # 0 = Monday, 1=Tuesday, 2=Wednesday...
-    :param d:
-    :param weekday:
+    # 0 = Monday, 1=Tuesday
+    :param d: date
+    :param weekday: int that represents the desired day 0 = Monday, 6= next Sunday, 12= next Saturday
     :return:
     """
     days_ahead = weekday - d.weekday()
-    if days_ahead <= 0: # Target day already happened this week
+    if days_ahead <= 0:  # Target day already happened this week
         days_ahead += 7
     return d + datetime.timedelta(days_ahead)
 
@@ -102,4 +105,3 @@ def convert_to_date(date_str):
 if __name__ == "__main__":
     print(convert_to_date('09-11-18'))
     date = datetime.datetime(2018, 6, 1)
-    print(compare_dates("2020-01-02 16:00", "2020-01-01"))

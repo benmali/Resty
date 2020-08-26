@@ -1,12 +1,12 @@
 from flask import Flask, session
-from register import registerBP
-from send_hours import sendHoursBP
-from main_page import mainBP
-from arrangement import arrangementBP
-from login import loginBP
-from log_working_hours import log_workBP
-from restore_shifts import restore_shiftsBP
-from week_templates import week_templatesBP
+from backend.register import registerBP
+from backend.send_hours import sendHoursBP
+from backend.main_page import mainBP
+from backend.arrangement import arrangementBP
+from backend.login import loginBP
+from backend.log_working_hours import log_workBP
+from backend.restore_shifts import restore_shiftsBP
+from backend.week_templates import week_templatesBP
 app = Flask(__name__)
 
 #bp of main - get

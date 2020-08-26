@@ -1,11 +1,11 @@
 from flask import Blueprint, render_template, request, session, flash, redirect
 
 arrangementBP = Blueprint("arrangement", __name__, static_folder="static", template_folder="templates")
-from DB import DB
-from Employee import Employee
-from WorkWeek import WorkWeek
-from WorkDay import WorkDay
-from Shift import Shift
+from classes.DB import DB
+from classes.Employee import Employee
+from classes.WorkWeek import WorkWeek
+from classes.WorkDay import WorkDay
+from classes.Shift import Shift
 
 db = DB("Resty.db")
 
@@ -15,9 +15,11 @@ def arrangement():
     if request.method == "GET":
         # make sure start_date is before end_date
         user_id = 1  # get logged in user's ID
-        same_day_scheduling = False # get this from user
+        same_day_scheduling = False  # get this from user
         start_date = "1-1-2020"  # get this from user
+        # start_date = str(datetimeHelp.next_weekday(dt.today(), 6)) - date of next Sunday
         end_date = "7-1-2020"  # get this from user
+        # end_time = str(datetimeHelp.next_weekday(dt.today(), 12)) - date of next Saturday
         org_id = db.get_org_by_usr(user_id)[0][0]  # get user org_id
         sol_num = db.sol_exists(org_id)  # gets the max sol number from DB
         if sol_num[0]:  # if solution exists in DB
@@ -87,13 +89,13 @@ if __name__ == "__main__":
     for employee in raw_employees:
         e_id = employee[0]
         if e_id in employee_dates:
-            if employee[4]: # Employee request a specific time a his shift
-                employee_dates[e_id] += [employee[3]+ " " +employee[4]]
+            if employee[4]:  # Employee request a specific time a his shift
+                employee_dates[e_id] += [employee[3] + " " + employee[4]]
             else:
                 employee_dates[e_id] += [employee[3]]
         else:
             if employee[4]:
-                employee_dates[e_id] = [employee[3]+ " " + employee[4]]
+                employee_dates[e_id] = [employee[3] + " " + employee[4]]
             else:
                 employee_dates[e_id] = [employee[3]]
         if e_id not in employee_names:

@@ -1,11 +1,12 @@
 
-import datetimeHelp
+from classes import datetimeHelp
+import datetime
 from datetime import date as dt
-from DB import DB
+from classes.DB import DB
 
 
 class Shift:
-    def __init__(self, shift_id, date, start_hour, num_bartenders=1, num_waitresses=1):
+    def __init__(self, shift_id, date, start_hour, num_bartenders=1, num_waitresses=1,bar_seniority=0, wait_seniority=0):
         """
         create a shift object with default number of employees
         this object is the shift to be scheduled
@@ -23,6 +24,8 @@ class Shift:
         self.num_waitresses = num_waitresses
         self.bartenders = []
         self.waitresses = []
+        self.bar_seniority = bar_seniority
+        self.wait_seniority = wait_seniority
 
     def __repr__(self):
         return "shift id: {}, date: {}, bartenders: {}, waitresses: {}".format(self.shift_id,
@@ -46,7 +49,12 @@ class Shift:
                 templates_dic[template] += [shift]
             else:
                 templates_dic[template] = [shift]
+        # sort shifts by day
+        for template_no, shifts in templates_dic.items():
+            templates_dic[template_no] = sorted(shifts, key= lambda x: datetimeHelp.day_to_n(x[0]))
+
         return templates_dic
+
 
     @classmethod
     def create_from_template(cls, org_id, template_no):
@@ -61,6 +69,7 @@ class Shift:
                 chosen_template = templates_dic[template_no]
                 dates = [str(datetimeHelp.next_weekday(dt.today(), i)) for i in range(6, 13)]  # next week dates
                 workdays = {}
+                shifts_lst =[]
                 for shift in chosen_template:
                     if shift[0] in workdays:
                         workdays[shift[0]] += [shift]
@@ -68,15 +77,16 @@ class Shift:
                     else:
                         workdays[shift[0]] = [shift]
                 print(workdays)
-                shift_id = db.get_max_shift_id(org_id)[0] + 1
                 for day, shifts in workdays.items():
                     date = datetimeHelp.day_to_date(day, dates)
                     date = "\"{}\"".format(date)
                     for i in range(len(shifts)):
-                        shift_id+=i
                         start_hour ="\"{}\"".format(shifts[i][1])
-                        db.insert_shift(org_id, shift_id, start_hour, date, shifts[i][2], shifts[i][3])
-                    shift_id += 1
+                        shifts_lst.append((org_id, start_hour, date, shifts[i][2], shifts[i][3]))
+                # templates are pre-sorted in create_templates()
+                # insert to DB as they are
+                shift_id = db.get_max_shift_id(org_id)[0] + 1
+                [db.insert_shift(shifts_lst[i][0],shift_id+i,shifts_lst[i][1],shifts_lst[i][2],shifts_lst[i][3],shifts_lst[i][4],0) for i in range(len(shifts_lst))]
         except IOError:
             print("IO Error")
 
@@ -86,6 +96,13 @@ class Shift:
         :return:
         """
         pass
+
+    def require_seniority(self, position):
+        if position == "bartender":
+            return self.bar_seniority != 0
+
+        if position == "waitress":
+            return self.wait_seniority != 0
 
     def is_full(self):
         return len(self.bartenders) == self.num_bartenders and len(self.waitresses) == self.num_waitresses

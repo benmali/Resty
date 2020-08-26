@@ -47,8 +47,8 @@ send the chosen dates as YYYY-MM-DD HH:MM, according to possible shifts
 /templates - view current trmplates available
 
 TODO:
-SQL QUERIES PROTECTION
-CREATE WORKWEEK TEMPLATE
+SQL INJECTION PROTECTION
+XSS PROTECTION
 SPELL CHECK FOR DAY NAMES AND ANY USER INPUT
 
 TOMMOROW:
@@ -67,5 +67,35 @@ user selects template
 from template, create new shift objects in DB for the new week, insert to DB
 employees send their hours
 create arrangement
+
+NADAV:
+
+TEMPLATES - CHOOSE TEMPLATE WITH DRAGGABLE TABLE FORM
+SEND HOURS - CREATE CHOOSE SHIFTS FORM FROM TABLE
+ARRANGEMENT - DRAGGABLE TABLE
+RESTORE SHIFTS PAGE
+SQL INJECTION PROTECTION - client side
+XSS Protection - client side
+
+--COMMON--
+LOGIN FORM
+
+
+--ADMIN PANEL--
+
+
+
+--MANAGER PANEL--
+CREATE/update/delete employee form
+Create Week from templates
+Create Arrangement
+View previous arrangements (solutions) 
+
+--EMPLOYEE PANEL--
+LOG WORK HOURS FORM
+VIEW WORK LOG
+SEND HOURS FORM
+
+
 
 

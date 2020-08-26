@@ -2,7 +2,7 @@ import datetime
 
 
 class WorkDay:
-    def __init__(self,org_id, date,manager=None):
+    def __init__(self,org_id, date, manager=None):
         """
         :param date: datetime object
         :param start_hour: datetime object

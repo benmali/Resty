@@ -1,4 +1,4 @@
-from User import User
+from classes.User import User
 
 
 class Employee(User):
