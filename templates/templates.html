@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Templates</title>
+</head>
+<body>
+<h3>View available templates</h3>
+          {% if params != {} %}
+            {% for template_no,template in params["templates"].items() %}
+            <table>
+                <thead>
+                    <tr>
+                        <td>Day</td>
+                        <td>Start Time</td>
+                        <td>Bartenders No.</td>
+                        <td>Waitresses No.</td>
+                        <td>Select this template</td>
+                    </tr>
+                </thead>
+
+                {% for shift in template %}
+                    <tr>
+                        <td>{{shift[0]}}</td>
+                        <td>{{shift[1]}}</td>
+                        <td>{{shift[2]}}</td>
+                        <td>{{shift[3]}}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+            {% endfor %}
+          {% endif %}
+
+</body>
+</html>

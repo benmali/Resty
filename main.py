@@ -6,6 +6,7 @@ from arrangement import arrangementBP
 from login import loginBP
 from log_working_hours import log_workBP
 from restore_shifts import restore_shiftsBP
+from week_templates import week_templatesBP
 app = Flask(__name__)
 
 #bp of main - get
@@ -21,6 +22,7 @@ app.register_blueprint(arrangementBP, url_prefix="")
 app.register_blueprint(loginBP, url_prefix="")
 app.register_blueprint(log_workBP, url_prefix="")
 app.register_blueprint(restore_shiftsBP, url_prefix="")
+app.register_blueprint(week_templatesBP,rl_prefix="")
 app.secret_key = "sxchahsdiusd324wdasd"
 # run scheduled tasks
 # import time

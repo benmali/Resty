@@ -33,17 +33,18 @@ FEATURES:
 EXPORT SOLUTIONS TO EXCEL, SEND TO EMAIL
 DRAG AND DROP SOLUTION ON UI
 RESTORE SOLUTION FROM DB - DONE
-CREATE SHIFTS FROM TEMPLATE - DONE
+CREATE SHIFTS FROM TEMPLATE - DONE Backend
 CHOOSE SAME DAY SCHEDULING (OR DON'T!) - DONE
 
 ROUTES:
 /send_hours - post + get - webpage for employees to turn in shift options
-send the chosen dates as YYYY-MM-DD OR YYYY-MM-DD HH:MM, according to possible shifts
+send the chosen dates as YYYY-MM-DD HH:MM, according to possible shifts
 /arrangement - shows the arrangement for the upcoming workweek
 /register - register user to the system
 /login - login into the system
 /log_work - employees can log their working hours here
 /restore_shifts - restores stored solutions
+/templates - view current trmplates available
 
 TODO:
 SQL QUERIES PROTECTION
@@ -51,7 +52,7 @@ CREATE WORKWEEK TEMPLATE
 SPELL CHECK FOR DAY NAMES AND ANY USER INPUT
 
 TOMMOROW:
-create for specific hours
+
 add more routes
 update employee
 log working hours for employees

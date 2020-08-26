@@ -31,6 +31,24 @@ class Shift:
                                                                                self.waitresses)
 
     @classmethod
+    def create_templates(cls, org_id):
+        """
+        Create a dictionary template_no: list of shifts
+        :param org_id:
+        :return:
+        """
+        db = DB("Resty.db")
+        templates = db.get_ww_templates(org_id)  # get all the templates
+        templates_dic = {}
+        for shift in templates:
+            template = shift[-1]
+            if template in templates_dic:
+                templates_dic[template] += [shift]
+            else:
+                templates_dic[template] = [shift]
+        return templates_dic
+
+    @classmethod
     def create_from_template(cls, org_id, template_no):
         """
         Create shifts based on template and insert to DB
@@ -38,14 +56,7 @@ class Shift:
         """
         try:
             db = DB("Resty.db")
-            templates = db.get_ww_templates(org_id)  # get all the templates
-            templates_dic = {}
-            for shift in templates:
-                template = shift[-1]
-                if template in templates_dic:
-                    templates_dic[template] += [shift]
-                else:
-                    templates_dic[template] = [shift]
+            templates_dic = Shift.create_templates(org_id)
             if template_no in templates_dic:  # user requested an existing template
                 chosen_template = templates_dic[template_no]
                 dates = [str(datetimeHelp.next_weekday(dt.today(), i)) for i in range(6, 13)]  # next week dates
