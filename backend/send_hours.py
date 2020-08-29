@@ -1,10 +1,10 @@
-from flask import Blueprint, render_template, request, session, flash, redirect
+from flask import Blueprint, render_template, request, flash, redirect
 from classes.DB import DB
 from classes import datetimeHelp
 from classes.Employee import Employee
-from classes.Shift import Shift
+
 from datetime import date as dt
-import json
+
 
 
 sendHoursBP = Blueprint("send_hours", __name__, static_folder="static", template_folder="templates")
@@ -19,30 +19,12 @@ def send_hours():
     """
     try:
         if request.method == "POST":
-
-            # match the user's days request
-            user_id = request.form["user_id"]
-            dates = request.form["dates"] # convert days to date - accepted format YYYY-MM-DD  HH:MM
-            start_time = request.form["hours"]
-            end_time = "NULL"
-            # change arrangement and employee logic to handle multiple hour choice,
-            for date in dates:
-                db.insert_employee_times(user_id, date, start_time, end_time)
-
-            flash("Shift options recorded successfully")
             return redirect("/send_hours")
             # session.pop('_flashes', None)
             # flash("Attendance failed to register")
 
         if request.method == "GET":
-            org_id = 1  # get user's org_id
-            start_date = datetimeHelp.next_weekday(dt.today(),6)  # next week's Sunday
-            end_date = datetimeHelp.next_weekday(dt.today(), 12)  # next week's Saturday
-            raw_shifts = db.get_shifts_by_date_range(org_id, start_date, end_date)
-            shifts = [Shift(shift[0], shift[1], shift[2]) for shift in raw_shifts]
-            jlist = [json.dumps(s.__dict__) for s in shifts]
-
-            return render_template("send_hours.html", params={"shifts":shifts,"json":jlist})
+            return render_template("send_hours.html")
 
         else:
             return render_template("error_page.html")
