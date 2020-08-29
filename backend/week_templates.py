@@ -13,7 +13,7 @@ def templates():
         org_id = 1
         templates = Shift.create_templates(1)
         json_templates = json.dumps(templates)
-        # return render_template("templates.html",params={"templates":templates,"json":json_templates})
+        return render_template("templates.html",params={})
 
     if request.method == "POST":
         org_id = 1 # get from user
