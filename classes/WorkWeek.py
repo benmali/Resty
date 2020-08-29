@@ -1,6 +1,5 @@
 from classes.Shift import Shift
 from classes.WorkDay import WorkDay
-from classes.Employee import Employee
 from classes import datetimeHelp
 from datetime import date as dt
 import random
@@ -37,7 +36,7 @@ class WorkWeek:
                     templates_dic[template] = [shift]
             if template_no in templates_dic:  # user requested an existing template
                 chosen_template = templates_dic[template_no]
-                dates = [str(datetimeHelp.next_weekday(dt.today(), i)) for i in range(6, 13)]  # next week dates
+                dates = datetimeHelp.this_week_dates()  # next week dates
                 workdays = {}
                 workdays_lst = []
                 for shift in chosen_template:
@@ -50,9 +49,9 @@ class WorkWeek:
                 shift_id = db.get_max_shift_id(org_id)[0] +1
                 for day, shifts in workdays.items():
                     date = datetimeHelp.day_to_date(day,dates)
-                    shift_lst = [Shift(shift_id+i, date, shifts[i][1],shifts[i][2],shifts[i][3]) for i in range(len(shifts))]
+                    shift_lst = [Shift(shift_id+i, date, shifts[i][1], shifts[i][2],shifts[i][3]) for i in range(len(shifts))]
                     shift_id += len(shifts)
-                    wd = WorkDay(org_id,date)
+                    wd = WorkDay(org_id, date)
                     wd.set_shifts(shift_lst)
                     workdays_lst.append(wd)
                 return cls(workdays_lst)

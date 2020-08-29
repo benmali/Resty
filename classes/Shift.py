@@ -6,7 +6,7 @@ from classes.DB import DB
 
 
 class Shift:
-    def __init__(self, shift_id, date, start_hour, num_bartenders=1, num_waitresses=1,bar_seniority=0, wait_seniority=0):
+    def __init__(self, shift_id, date, start_hour, num_bartenders=1, num_waitresses=1, seniority=0):
         """
         create a shift object with default number of employees
         this object is the shift to be scheduled
@@ -16,6 +16,7 @@ class Shift:
         :param num_bartenders: int of needed Employees
         :param waitresses: list of Employee
         :param num_waitresses: int of needed Employee
+        :param bartenders: represents in a scale of 0-3 (0 - New Employee, 1 - Average ,2 - Strong , 3 - Manager/Very Strong)
         """
         self.shift_id = shift_id
         self.date = date
@@ -24,8 +25,7 @@ class Shift:
         self.num_waitresses = num_waitresses
         self.bartenders = []
         self.waitresses = []
-        self.bar_seniority = bar_seniority
-        self.wait_seniority = wait_seniority
+        self.seniority = seniority
 
     def __repr__(self):
         return "shift id: {}, date: {}, bartenders: {}, waitresses: {}".format(self.shift_id,
@@ -81,7 +81,7 @@ class Shift:
                     date = datetimeHelp.day_to_date(day, dates)
                     date = "\"{}\"".format(date)
                     for i in range(len(shifts)):
-                        start_hour ="\"{}\"".format(shifts[i][1])
+                        start_hour ="\"{}\"".format(shifts[i][1])  # add quotes to start hour for DB
                         shifts_lst.append((org_id, start_hour, date, shifts[i][2], shifts[i][3]))
                 # templates are pre-sorted in create_templates()
                 # insert to DB as they are
@@ -96,6 +96,12 @@ class Shift:
         :return:
         """
         pass
+
+    def get_seniority(self):
+        return self.seniority
+
+    def set_seniority(self, seniority):
+        self.seniority = seniority
 
     def require_seniority(self, position):
         if position == "bartender":

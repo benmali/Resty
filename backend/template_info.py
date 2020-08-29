@@ -9,7 +9,5 @@ db = DB("Resty.db")
 @templates_infoBP.route("/templates_info", methods=["GET"])
 def templates_info():
     if request.method == "GET":
-        org_id = 1
-        templates = Shift.create_templates(1)
-        json_templates = json.dumps(templates)
-        return json_templates
+        org_id = 1  # get from user
+        return json.dumps(Shift.create_templates(org_id))

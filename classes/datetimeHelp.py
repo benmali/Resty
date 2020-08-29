@@ -1,4 +1,6 @@
 import datetime
+from datetime import date as dt
+
 """
     strftime prints 
     %A - Full day of the week
@@ -22,6 +24,8 @@ import datetime
     date_dt2 = datetime.strptime(date_str2, '%m/%d/%y')
     date_dt3 = datetime.strptime(date_str3, '%m-%d-%Y')
     """
+
+
 def convert_to_str(date):
     """
     :param date: datetime object
@@ -41,6 +45,7 @@ def swap_date_format(date):
     :return:
     """
     return "-".join(date.split("-")[::-1])
+
 
 def day_to_date(day, dates):
     """
@@ -93,14 +98,18 @@ def next_weekday(d, weekday):
     return d + datetime.timedelta(days_ahead)
 
 
+def this_week_dates():
+    return [str(next_weekday(dt.today(), i)) for i in range(6, 13)]
+
 
 def convert_to_date(date_str):
     """
     :param date_str: string of date, Israel formatted
     :return: datetime object
     """
-    new_date = list(map(int,date_str.split("-"))) # splits the string to day ,month,year
-    return datetime.datetime(new_date[0],new_date[1],new_date[2])
+    new_date = list(map(int, date_str.split("-")))  # splits the string to day ,month,year
+    return datetime.datetime(new_date[0], new_date[1], new_date[2])
+
 
 if __name__ == "__main__":
     print(convert_to_date('09-11-18'))
