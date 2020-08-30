@@ -2,7 +2,8 @@ import sqlite3
 import os
 import re
 import logging
-from classes.Employee import Employee
+from pathlib import Path
+
 
 
 
@@ -10,8 +11,13 @@ class DB:
     def __init__(self, name):
         self.name = name
 
+    def get_connection_path(self):
+        return str(Path(os.getcwd())) + "/" + self.name
     def check_for_db(self):
-        return os.path.isfile(self.name)
+        path = str(Path(os.getcwd()).parent)
+        if not os.path.isfile(path+"/"+self.name):
+            return os.path.isfile(self.name)
+        return True
 
     def create_db(self):
         try:
@@ -31,9 +37,9 @@ class DB:
                             (
                               employee_id INT NOT NULL,
                               date DATE NOT NULL,
-                              start_time DATE,
+                              start_time DATE NOT NULL,
                               end_time DATE,
-                              PRIMARY KEY (date, employee_id)
+                              PRIMARY KEY (date, employee_id, start_time)
                             );
                           """
                 query3 = """
@@ -455,6 +461,8 @@ class DB:
                 data = crsr.fetchall()
                 connection.close()
                 return data
+            else:
+                return None
         except IOError:
             print("Failed to get bartenders")
 
@@ -572,32 +580,6 @@ class DB:
         connection.close()
         return data
 
-
-    def create_mock_data(self):
-        connection = sqlite3.connect("Resty.db")
-        e1 = Employee(1, 1, {"bartender": 1}, ["1-1-2020", "7-1-2020", "3-1-2020"])
-        e2 = Employee(2, 2, {"waitress": 1}, ["1-1-2020", "2-1-2020", "4-1-2020", "7-1-2020"])
-        e3 = Employee(3, 3, {"bartender": 1}, ["1-1-2020", "2-1-2020", "3-1-2020", "7-1-2020"])
-        e4 = Employee(4, 4, {"bartender": 1}, ["2-1-2020", "4-1-2020", "5-1-2020", "6-1-2020"])
-        e5 = Employee(5, 5, {"waitress": 2, "bartender": 1},
-                      ["2-1-2020", "3-1-2020"])  # remove 3-1-20 to get best non viable solution
-        e6 = Employee(6, 6, {"waitress": 1, "bartender": 1}, ["1-1-2020", "6-1-2020", "5-1-2020"])
-        e7 = Employee(7, 7, {"waitress": 1}, ["1-1-2020", "7-1-2020", "5-1-2020"])
-        e8 = Employee(8, 8, {"waitress": 1, "bartender": 1}, ["6-1-2020", "5-1-2020"])
-        e9 = Employee(9, 9, {"waitress": 1}, ["3-1-2020", "4-1-2020", "6-1-2020"])
-        e10 = Employee(10, 10, {"bartender": 1, "waitress": 1}, ["1-1-2020", "2-1-2020", "4-1-2020", "7-1-2020"])
-        e_list = [e1, e2, e3, e4, e5, e6, e7, e8, e9, e10]
-        start_time = "16:00"
-        crsr = connection.cursor()
-        for employee in e_list:
-            first_name, last_name = employee.get_full_name()
-            e_id = employee.get_id()
-            query = """
-                    INSERT INTO Employee VALUES({},{},{})""".format(e_id, first_name, last_name)
-            # query2 = """INSERT INTO Employee_Times VALUES({},{},{},{}})""".format(e_id, date, start_time, end_time)
-            crsr.execute(query)
-        connection.commit()
-        connection.close()
 
 
 if __name__ == "__main__":

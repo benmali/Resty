@@ -1,8 +1,8 @@
 
 from classes import datetimeHelp
-import datetime
+
 from datetime import date as dt
-from classes.DB import DB
+from DB import DB
 
 
 class Shift:
@@ -55,6 +55,22 @@ class Shift:
 
         return templates_dic
 
+    @classmethod
+    def get_senior_employee(cls, position, seniority, employees):
+        """
+        get a list of employees and a required position and a seniority lvl
+        return the first employee that matches the criteria
+        :param position: name of the postion
+        :param seniority: seniority lvl 0-3
+        :param employees: list of Employee objects
+        :return: Employee
+        """
+        for employee in employees:
+            # loop through the positions dictionary of every employee in the list
+            for pos, sen in employee.get_positions().items():
+                # if the lvl of seniority is more or equal to the requested
+                if position == pos and sen >= seniority:
+                    return employee
 
     @classmethod
     def create_from_template(cls, org_id, template_no):

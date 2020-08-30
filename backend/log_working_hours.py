@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, session, flash, redirect
 
 log_workBP = Blueprint("log_work", __name__, static_folder="static", template_folder="templates")
-from classes.DB import DB
+from DB import DB
 
 db = DB("Resty.db")
 

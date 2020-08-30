@@ -61,5 +61,8 @@ class WorkDay:
     def get_shifts(self):
         return self.shifts
 
+    def is_first_shift(self, shift):
+        return shift == self.shifts[0]
+
 if __name__ == "__main__":
     pass

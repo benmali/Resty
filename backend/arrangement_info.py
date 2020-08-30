@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, session, flash, redirect
 
 arrangementInfoBP = Blueprint("arrangement_info", __name__, static_folder="static", template_folder="templates")
-from classes.DB import DB
+from DB import DB
 from classes.Employee import Employee
 from classes.WorkWeek import WorkWeek
 from classes.WorkDay import WorkDay
@@ -27,12 +27,12 @@ def arrangement_info():
         else:
             session["sol"] += 1
         raw_employees = db.get_employees_by_date_range(org_id, start_date, end_date)
-        employee_dates,employee_names = {},{}  # map e_id to dates
+        employee_dates, employee_names = {}, {}  # map e_id to dates
         employees = []
         for employee in raw_employees:
             e_id = employee[0]
             if e_id in employee_dates:
-                if employee[4]:  # Employee request a specific time a his shift
+                if employee[4]:  # Employee request a specific time a his shift, combine date and hour
                     employee_dates[e_id] += [employee[3] + " " + employee[4]]
                 else:
                     employee_dates[e_id] += [employee[3]]
@@ -41,7 +41,7 @@ def arrangement_info():
                     employee_dates[e_id] = [employee[3] + " " + employee[4]]
                 else:
                     employee_dates[e_id] = [employee[3]]
-            if e_id not in employee_names:
+            if e_id not in employee_names: # combine first and last name
                 employee_names[e_id] = employee[1] + " " + employee[2]
         for e_id in employee_dates.keys():
             positions = db.get_employee_positions(e_id)

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect
-from classes.DB import DB
+from DB import DB
 from classes import datetimeHelp
 from classes.Employee import Employee
 
