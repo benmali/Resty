@@ -27,28 +27,7 @@ def arrangement_info():
         else:
             session["sol"] += 1
         raw_employees = db.get_employees_by_date_range(org_id, start_date, end_date)
-        employee_dates, employee_names = {}, {}  # map e_id to dates
-        employees = []
-        for employee in raw_employees:
-            e_id = employee[0]
-            if e_id in employee_dates:
-                if employee[4]:  # Employee request a specific time a his shift, combine date and hour
-                    employee_dates[e_id] += [employee[3] + " " + employee[4]]
-                else:
-                    employee_dates[e_id] += [employee[3]]
-            else:
-                if employee[4]:
-                    employee_dates[e_id] = [employee[3] + " " + employee[4]]
-                else:
-                    employee_dates[e_id] = [employee[3]]
-            if e_id not in employee_names: # combine first and last name
-                employee_names[e_id] = employee[1] + " " + employee[2]
-        for e_id in employee_dates.keys():
-            positions = db.get_employee_positions(e_id)
-            positions_dic = {}
-            for position in positions:
-                positions_dic[position[0]] = position[1]
-            employees.append(Employee(e_id, employee_names[e_id], positions_dic, employee_dates[e_id]))
+        employees = Employee.employees_from_DB(raw_employees)
         raw_shifts = db.get_shifts_by_date_range(org_id, start_date, end_date)
         shifts = [Shift(shift[0], shift[1], shift[2]) for shift in raw_shifts]
         raw_workdays = db.get_wdays_by_date_range(org_id, start_date, end_date)
@@ -80,29 +59,7 @@ if __name__ == "__main__":
     user_id = 1  # get logged in user's ID
     org_id = db.get_org_by_usr(user_id)[0][0]  # get user org_id
     raw_employees = db.get_employees_by_date_range(org_id, "1-1-2020", "7-1-2020")
-    employee_dates = {}  # map e_id to dates
-    employee_names = {}
-    employees = []
-    for employee in raw_employees:
-        e_id = employee[0]
-        if e_id in employee_dates:
-            if employee[4]:  # Employee request a specific time a his shift
-                employee_dates[e_id] += [employee[3] + " " + employee[4]]
-            else:
-                employee_dates[e_id] += [employee[3]]
-        else:
-            if employee[4]:
-                employee_dates[e_id] = [employee[3] + " " + employee[4]]
-            else:
-                employee_dates[e_id] = [employee[3]]
-        if e_id not in employee_names:
-            employee_names[e_id] = employee[1] + " " + employee[2]
-    for e_id in employee_dates.keys():
-        positions = db.get_employee_positions(e_id)
-        positions_dic = {}
-        for position in positions:
-            positions_dic[position[0]] = position[1]
-        employees.append(Employee(e_id, employee_names[e_id], positions_dic, employee_dates[e_id]))
+    employees = Employee.employees_from_DB(raw_employees)
     raw_shifts = db.get_shifts_by_date_range(org_id, "1-1-2020", "7-1-2020")
     shifts = [Shift(shift[0], shift[1], shift[2]) for shift in raw_shifts]
     raw_workdays = db.get_wdays_by_date_range(org_id, "1-1-2020", "7-1-2020")

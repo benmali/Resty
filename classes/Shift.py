@@ -56,7 +56,7 @@ class Shift:
         return templates_dic
 
     @classmethod
-    def get_senior_employee(cls, position, seniority, employees):
+    def get_senior_employee(cls, date, position, seniority, employees):
         """
         get a list of employees and a required position and a seniority lvl
         return the first employee that matches the criteria
@@ -69,7 +69,8 @@ class Shift:
             # loop through the positions dictionary of every employee in the list
             for pos, sen in employee.get_positions().items():
                 # if the lvl of seniority is more or equal to the requested
-                if position == pos and sen >= seniority:
+                # employee can work in a certain date, as well as senior enough
+                if position == pos and sen >= seniority and date in employee.get_dates():
                     return employee
 
     @classmethod

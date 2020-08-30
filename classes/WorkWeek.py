@@ -108,7 +108,7 @@ class WorkWeek:
                         found_sol = False
                         num_bartenders = shift.get_num_barts()
                         num_waitresses = shift.get_num_waits()
-                        num_scheduled_bartenders,num_scheduled_waitresses = 0, 0
+                        num_scheduled_bartenders, num_scheduled_waitresses = 0, 0
                         for i in range(7):
                             if num_bartenders == num_scheduled_bartenders:
                                 break  # scheduling shift is over, break loop
@@ -125,12 +125,13 @@ class WorkWeek:
                                     prevent_loop += 1  # if no possible match found
                                     break
                                 else:
-                                    if day.is_first_shift(shift):  # try schedule the first strong employee found
-                                        chosen_employee = Shift.get_senior_employee("bartender", 2, possible_employees)
-                                        # will not schedule ANY employee to the shift if senior not found!
+                                    if day.is_first_shift(shift) and not shift.get_bartenders():  # try schedule the first strong employee found
+                                        chosen_employee = Shift.get_senior_employee(shift.get_date(),"bartender", 2, possible_employees)
+                                        # find a senior employee that can work at this shift
                                     else:  # not the first shift of the day, fill randomly
                                         chosen_employee = random.choice(possible_employees)
-                                    if not chosen_employee:  # no match found for the employee
+                                    if not chosen_employee:  # no match found for a senior employee
+                                        # try schedule another employee instead, manager decision
                                         chosen_employee = random.choice(possible_employees)
                                     if shift.get_date() in chosen_employee.get_dates().keys():
                                         if shift.get_start_hour() in chosen_employee.get_dates()[shift.get_date()]:
@@ -170,8 +171,8 @@ class WorkWeek:
                                     prevent_loop += 1
                                     break
                                 else:
-                                    if day.is_first_shift(shift):  # try schedule the first strong employee found
-                                        chosen_employee = Shift.get_senior_employee("waitress", 2, possible_employees)
+                                    if day.is_first_shift(shift) and not shift.get_waitresses():  # try schedule the first strong employee found
+                                        chosen_employee = Shift.get_senior_employee(shift.get_date(),"waitress", 2, possible_employees)
                                     else:  # not the first shift of the day, fill randomly
                                         chosen_employee = random.choice(possible_employees)
                                     # makes sure employee is able to work at this shift
