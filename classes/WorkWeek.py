@@ -73,6 +73,25 @@ class WorkWeek:
 
         """
         """"""
+        def schedule():
+            """
+            try schedule a chosen employee to shift
+            :return: True if successfully scheduled Employee to Shift, False else
+            """
+            if shift.get_date() in chosen_employee.get_dates().keys():
+                if shift.get_start_hour() in chosen_employee.get_dates()[shift.get_date()]:
+                    # makes sure employee isn't already scheduled to work
+                    # same_day_scheduling is set to false by default
+                    if chosen_employee not in day.get_employees() or same_day_scheduling:
+                        if chosen_employee not in shift.get_employees():
+                            chosen_employee.add_shift(shift.get_shift_id())
+                            shift_dic[i + 1] += [chosen_employee]
+                            decrement_list = shift_dic[i]
+                            decrement_list.remove(chosen_employee)
+                            shift_dic[i] = decrement_list
+                            day.add_employee(chosen_employee)
+                            return True
+            return False
 
         try:
             # same_day_scheduling is a variable that can be changed to enable same day scheduling
@@ -106,12 +125,11 @@ class WorkWeek:
                     shift_dic[i] = []
                 for day in self.work_days:  # iterate over every day of the WordDay element
                     for shift in day.get_shifts():  # iterate over every shift in the WorkDay
-                        found_sol = False
                         num_bartenders = shift.get_num_barts()
                         num_waitresses = shift.get_num_waits()
                         num_scheduled_bartenders, num_scheduled_waitresses = 0, 0
                         for i in range(7):
-                            if num_bartenders == num_scheduled_bartenders and num_waitresses==num_scheduled_waitresses:
+                            if num_bartenders == num_scheduled_bartenders and num_waitresses == num_scheduled_waitresses:
                                 break  # scheduling shift is over, break loop
                             if shift_dic[i]:
                                 possible_employees = [bartender for bartender in shift_dic[i] if
@@ -122,7 +140,7 @@ class WorkWeek:
                                 if len(possible_employees) == 0:
                                     break
                                 if day.is_first_shift(
-                                        shift) and not shift.get_employees():  # try schedule the first strong employee found
+                                        shift) and not shift.get_bartenders():  # try schedule the first strong employee found
                                     chosen_employee = Shift.get_senior_employee(shift.get_date(), "bartender", 2,
                                                                                 possible_employees)
                                     # find a senior employee that can work at this shift
@@ -131,20 +149,9 @@ class WorkWeek:
                                 if not chosen_employee:  # no match found for a senior employee
                                     # try schedule another employee instead, manager decision
                                     chosen_employee = random.choice(possible_employees)
-                                if shift.get_date() in chosen_employee.get_dates().keys():
-                                    if shift.get_start_hour() in chosen_employee.get_dates()[shift.get_date()]:
-                                        # makes sure employee isn't already scheduled to work
-                                        # same_day_scheduling is set to false by default
-                                        if chosen_employee not in day.get_employees() or same_day_scheduling:
-                                            if chosen_employee not in shift.get_employees():
-                                                shift.add_bartender(chosen_employee)
-                                                chosen_employee.add_shift(shift.get_shift_id())
-                                                shift_dic[i + 1] += [chosen_employee]
-                                                decrement_list = shift_dic[i]
-                                                decrement_list.remove(chosen_employee)
-                                                shift_dic[i] = decrement_list
-                                                day.add_employee(chosen_employee)
-                                                num_scheduled_bartenders += 1
+                                if schedule():
+                                    shift.add_bartender(chosen_employee)
+                                    num_scheduled_bartenders += 1
                                     # remove chosen employee anyway, not viable for scheduling in this shift anymore
                                 possible_employees.remove(chosen_employee)
 
@@ -154,7 +161,7 @@ class WorkWeek:
                                 if len(possible_employees) == 0:  # if no possible match found
                                     break
                                 if day.is_first_shift(
-                                        shift) and not shift.get_employees():  # try schedule the first strong employee found
+                                        shift) and not shift.get_waitresses():  # try schedule the first strong employee found
                                     chosen_employee = Shift.get_senior_employee(shift.get_date(), "waitress", 2,
                                                                                 possible_employees)
                                 else:  # not the first shift of the day, fill randomly
@@ -162,22 +169,12 @@ class WorkWeek:
                                     # makes sure employee is able to work at this shift
                                 if not chosen_employee:  # no match found for the employee
                                     chosen_employee = random.choice(possible_employees)
-                                if shift.get_date() in chosen_employee.get_dates().keys():
-                                    if shift.get_start_hour() in chosen_employee.get_dates()[shift.get_date()]:
-                                        # makes sure employee isn't already scheduled to work this day
-                                        if chosen_employee not in day.get_employees() or same_day_scheduling:
-                                            # not scheduled for this shift
-                                            if chosen_employee not in shift.get_employees():
-                                                shift.add_waitress(chosen_employee)
-                                                chosen_employee.add_shift(shift.get_shift_id())
-                                                shift_dic[i + 1] += [chosen_employee]
-                                                decrement_list = shift_dic[i]
-                                                decrement_list.remove(chosen_employee)
-                                                shift_dic[i] = decrement_list
-                                                day.add_employee(chosen_employee)
-                                                num_scheduled_waitresses += 1
-                                        # remove chosen employee anyway, not viable for scheduling in this shift anymore
+                                if schedule():
+                                    shift.add_waitress(chosen_employee)
+                                    num_scheduled_waitresses += 1
+                                # remove chosen employee anyway, not viable for scheduling in this shift anymore
                                 possible_employees.remove(chosen_employee)
+                        # end of while loops
                         solution.append(copy.deepcopy(shift))
                     num_employees += len(day.get_employees())
                 if max_num_employees < num_employees:  # current solution is better than previous best
