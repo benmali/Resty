@@ -19,6 +19,10 @@ class WorkDay:
     def __repr__(self):
         return " DAY: {}".format(self.date)
 
+    @classmethod
+    def create_from_DB(cls,org_id,raw_workdays):
+        return [WorkDay(org_id, wd[0], wd[1]) for wd in raw_workdays]
+
     def add_employee(self, employee):
         self.employees.append(employee)
 
@@ -56,7 +60,7 @@ class WorkDay:
                 pass
                 # pull employees for specific day
                 # sum all  work hours of employees
-                #assign tip to employee - (work hours/total hours) * tips
+                # assign tip to employee - (work hours/total hours) * tips
 
     def get_shifts(self):
         return self.shifts

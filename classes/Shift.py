@@ -1,4 +1,3 @@
-
 from classes import datetimeHelp
 
 from datetime import date as dt
@@ -51,7 +50,7 @@ class Shift:
                 templates_dic[template] = [shift]
         # sort shifts by day
         for template_no, shifts in templates_dic.items():
-            templates_dic[template_no] = sorted(shifts, key= lambda x: datetimeHelp.day_to_n(x[0]))
+            templates_dic[template_no] = sorted(shifts, key=lambda x: datetimeHelp.day_to_n(x[0]))
 
         return templates_dic
 
@@ -62,6 +61,7 @@ class Shift:
         return the first employee that matches the criteria
         :param position: name of the postion
         :param seniority: seniority lvl 0-3
+        :param date: date in YYYY-MM-DD Format
         :param employees: list of Employee objects
         :return: Employee
         """
@@ -72,6 +72,10 @@ class Shift:
                 # employee can work in a certain date, as well as senior enough
                 if position == pos and sen >= seniority and date in employee.get_dates():
                     return employee
+
+    @classmethod
+    def create_from_DB(cls, raw_shifts):
+        return [Shift(shift[0], shift[1], shift[2]) for shift in raw_shifts]
 
     @classmethod
     def create_from_template(cls, org_id, template_no):
@@ -86,7 +90,7 @@ class Shift:
                 chosen_template = templates_dic[template_no]
                 dates = [str(datetimeHelp.next_weekday(dt.today(), i)) for i in range(6, 13)]  # next week dates
                 workdays = {}
-                shifts_lst =[]
+                shifts_lst = []
                 for shift in chosen_template:
                     if shift[0] in workdays:
                         workdays[shift[0]] += [shift]
@@ -98,12 +102,13 @@ class Shift:
                     date = datetimeHelp.day_to_date(day, dates)
                     date = "\"{}\"".format(date)
                     for i in range(len(shifts)):
-                        start_hour ="\"{}\"".format(shifts[i][1])  # add quotes to start hour for DB
+                        start_hour = "\"{}\"".format(shifts[i][1])  # add quotes to start hour for DB
                         shifts_lst.append((org_id, start_hour, date, shifts[i][2], shifts[i][3]))
                 # templates are pre-sorted in create_templates()
                 # insert to DB as they are
                 shift_id = db.get_max_shift_id(org_id)[0] + 1
-                [db.insert_shift(shifts_lst[i][0],shift_id+i,shifts_lst[i][1],shifts_lst[i][2],shifts_lst[i][3],shifts_lst[i][4],0) for i in range(len(shifts_lst))]
+                [db.insert_shift(shifts_lst[i][0], shift_id + i, shifts_lst[i][1], shifts_lst[i][2], shifts_lst[i][3],
+                                 shifts_lst[i][4], 0) for i in range(len(shifts_lst))]
         except IOError:
             print("IO Error")
 
@@ -171,21 +176,8 @@ class Shift:
     def get_waitresses(self):
         return self.waitresses
 
-
-class EmployeeShift:
-    def __init__(self, shift, end_hour):
-        """
-        this is the shift object of a specific employee
-        :param shift: shift object that the employee was scheduled in
-        :param end_hour: actual ending hour
-        """
-        self.start_hour = shift.get_start_hour()
-        self.date = shift.get_date()
-        self.end_hour = end_hour
-        self.employees = []
-
     def get_employees(self):
-        return self.employees
+        return self.bartenders+ self.waitresses
 
 
 @staticmethod
@@ -210,7 +202,7 @@ if __name__ == "__main__":
     # bart = Employee(1,2,3,4)
     # waiter = Employee(2,3,4,5)
     # date = datetime.datetime(20,6,15,16)
-    first_shift = Shift(1,"2020-01-01","16:00")
+    first_shift = Shift(1, "2020-01-01", "16:00")
     print(first_shift.get_day())
     db = DB("Resty.db")
     data = db.get_employees()

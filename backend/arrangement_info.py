@@ -1,11 +1,12 @@
-from flask import Blueprint, render_template, request, session, flash, redirect
-
-arrangementInfoBP = Blueprint("arrangement_info", __name__, static_folder="static", template_folder="templates")
+from flask import Blueprint, render_template, request, session
 from DB import DB
 from classes.Employee import Employee
 from classes.WorkWeek import WorkWeek
 from classes.WorkDay import WorkDay
 from classes.Shift import Shift
+
+arrangementInfoBP = Blueprint("arrangement_info", __name__, static_folder="static", template_folder="templates")
+
 
 db = DB("Resty.db")
 
@@ -27,20 +28,17 @@ def arrangement_info():
         else:
             session["sol"] += 1
         raw_employees = db.get_employees_by_date_range(org_id, start_date, end_date)
-        employees = Employee.employees_from_DB(raw_employees)
+        employees = Employee.create_from_DB(raw_employees)
         raw_shifts = db.get_shifts_by_date_range(org_id, start_date, end_date)
-        shifts = [Shift(shift[0], shift[1], shift[2]) for shift in raw_shifts]
+        shifts = Shift.create_from_DB(raw_shifts)
         raw_workdays = db.get_wdays_by_date_range(org_id, start_date, end_date)
-        workdays = [WorkDay(org_id, wd[0], wd[1]) for wd in raw_workdays]
-        i = 0
+        workdays = WorkDay.create_from_DB(org_id, raw_workdays)
+
         # add shifts to corresponding days
         for shift in shifts:
-            while i < len(workdays):
+            for i in range(len(workdays)):
                 if shift.get_date() == workdays[i].get_date():
                     workdays[i].add_shift(shift)
-                    break
-                else:
-                    i += 1
 
         ww = WorkWeek(workdays)
         dic, sol = ww.create_arrangement(employees, same_day_scheduling)
@@ -59,7 +57,7 @@ if __name__ == "__main__":
     user_id = 1  # get logged in user's ID
     org_id = db.get_org_by_usr(user_id)[0][0]  # get user org_id
     raw_employees = db.get_employees_by_date_range(org_id, "1-1-2020", "7-1-2020")
-    employees = Employee.employees_from_DB(raw_employees)
+    employees = Employee.create_from_DB(raw_employees)
     raw_shifts = db.get_shifts_by_date_range(org_id, "1-1-2020", "7-1-2020")
     shifts = [Shift(shift[0], shift[1], shift[2]) for shift in raw_shifts]
     raw_workdays = db.get_wdays_by_date_range(org_id, "1-1-2020", "7-1-2020")

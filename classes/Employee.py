@@ -38,7 +38,7 @@ class Employee(User):
 
 
     @classmethod
-    def employees_from_DB(cls, raw_employees):
+    def create_from_DB(cls, raw_employees):
         employee_dates, employee_names = {}, {}  # map e_id to dates
         employees = []
         for employee in raw_employees:
@@ -111,5 +111,5 @@ class Employee(User):
 
 if __name__ == "__main__":
     raw = db.get_employees_by_date_range(1,"2020-01-01","2020-01-07")
-    emp = Employee.employees_from_DB(raw)
+    emp = Employee.create_from_DB(raw)
     print(emp)
