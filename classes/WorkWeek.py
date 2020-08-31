@@ -111,14 +111,13 @@ class WorkWeek:
                         num_waitresses = shift.get_num_waits()
                         num_scheduled_bartenders, num_scheduled_waitresses = 0, 0
                         for i in range(7):
-                            if num_bartenders == num_scheduled_bartenders:
+                            if num_bartenders == num_scheduled_bartenders and num_waitresses==num_scheduled_waitresses:
                                 break  # scheduling shift is over, break loop
                             if shift_dic[i]:
                                 possible_employees = [bartender for bartender in shift_dic[i] if
                                                       "bartender" in bartender.get_positions()]
                             else:
                                 continue
-                            prevent_loop = 0
                             while num_bartenders > num_scheduled_bartenders:
                                 if len(possible_employees) == 0:
                                     break
@@ -148,22 +147,9 @@ class WorkWeek:
                                                 num_scheduled_bartenders += 1
                                     # remove chosen employee anyway, not viable for scheduling in this shift anymore
                                 possible_employees.remove(chosen_employee)
-                                prevent_loop += 1
-                                if prevent_loop > 100:
-                                    break
-                        for i in range(7):
-                            if num_waitresses == num_scheduled_waitresses:
-                                # append with deep copy
-                                # prevent for shift reset to affect optimal solution
-                                solution.append(copy.deepcopy(shift))
-                                found_sol = True
-                                break  # scheduling shift is over, break loop
-                            if shift_dic[i]:
-                                possible_employees = [waitress for waitress in shift_dic[i] if
+
+                            possible_employees = [waitress for waitress in shift_dic[i] if
                                                       "waitress" in waitress.get_positions()]  # filter out waitresses from
-                            else:  # no employees with "i" shifts
-                                continue
-                            prevent_loop = 0
                             while num_waitresses > num_scheduled_waitresses:
                                 if len(possible_employees) == 0:  # if no possible match found
                                     break
@@ -192,14 +178,8 @@ class WorkWeek:
                                                 num_scheduled_waitresses += 1
                                         # remove chosen employee anyway, not viable for scheduling in this shift anymore
                                 possible_employees.remove(chosen_employee)
-                                prevent_loop += 1
-                                if prevent_loop > 100:
-                                    print("no solution found for waitress at {}".format(shift.get_date()))
-                                    break
-                        if not found_sol:
-                            solution.append(copy.deepcopy(shift))
+                        solution.append(copy.deepcopy(shift))
                     num_employees += len(day.get_employees())
-
                 if max_num_employees < num_employees:  # current solution is better than previous best
                     max_num_employees = num_employees
                     best = solution[:]
