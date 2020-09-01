@@ -48,6 +48,16 @@ def arrangement_info():
 
         # add arrangement to DB
         # db.register_arrangement(sol, session["sol"])
+        #print(WorkWeek.min_shifts_swap(dic,sol))
+        # 2: [Employee 5, tom col, dict_keys(['waitress', 'bartender']), Employee 7, itzik shawarma, dict_keys(['waitress']), Employee 8, roni kofif, dict_keys(['waitress', 'bartender'])],
+        # 3: [Employee 6, pagi pagi, dict_keys(['waitress', 'bartender']), Employee 4, niv mali, dict_keys(['bartender']), Employee 9, some guy, dict_keys(['waitress']), Employee 1, ben mali, dict_keys(['bartender']), Employee 2, paz mali, dict_keys(['waitress']), Employee 3, rom mali, dict_keys(['bartender'])],
+        # 4: [Employee 10, another guy, dict_keys(['bartender', 'waitress'])], 5: [], 6: [], 7: [], 8: [], 9: [], 10: []}]
+
+        #2: [Employee 5, tom col, dict_keys(['waitress', 'bartender']), Employee 7, itzik shawarma, dict_keys(['waitress']), Employee 8, roni kofif, dict_keys(['waitress', 'bartender'])],
+        # 3: [Employee 6, pagi pagi, dict_keys(['waitress', 'bartender']), Employee 4, niv mali, dict_keys(['bartender']), Employee 9, some guy, dict_keys(['waitress']), Employee 1, ben mali, dict_keys(['bartender']), Employee 10, another guy, dict_keys(['bartender', 'waitress']), Employee 3, rom mali, dict_keys(['bartender'])],
+        # 4: [Employee 2, paz mali, dict_keys(['waitress'])]
+        #swap 2 and 10 set 10 to 4 min
+        dic,sol = WorkWeek.min_shifts_swap(dic,sol)
         return str([sol, dic])
     else:
         return render_template("error_page.html")

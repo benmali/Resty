@@ -5,14 +5,14 @@ db = DB("Resty.db")
 
 
 class Employee(User):
-    def __init__(self, e_id, name, positions, work_days=None, max_hours=None):
+    def __init__(self, e_id, name, positions, work_days=None, min_shifts=None):
         """
         create an Employee object
         :param e_id: employee's ID
         :param name: employee's full name
         :param positions: dictionary containing position:seniority
         :param work_days: possible working days: start_hour dictionary
-        :param max_hours: set working hours limit
+        :param min_shifts: set minimum number of shifts
         """
         self.e_id = e_id
         self.name = name
@@ -28,14 +28,18 @@ class Employee(User):
             else:
                 self.work_days[date] = [time]
 
-        self.max_hours = max_hours
+        self.min_shifts = min_shifts
         self.shifts = []
         self.scheduled_hours = 0
         self.positions = positions
 
+    def __eq__(self, other):
+        if isinstance(other, Employee):
+            return self.get_id() == other.get_id()
+        return False
+    # hex(id(self)) object location in memory
     def __repr__(self):
-        return "Employee {}, {}, {}".format(self.e_id, self.name, self.positions.keys())
-
+        return "Employee {}, {}, {}".format(self.e_id, self.name, self.get_position_names())
 
     @classmethod
     def create_from_DB(cls, raw_employees):
@@ -67,6 +71,12 @@ class Employee(User):
         name = self.name.split(" ")
         return name[0], name[1]
 
+    def set_min_shfits(self, min_shifts):
+        self.min_shifts = min_shifts
+
+    def get_min_shifts(self):
+        return self.min_shifts
+
     def add_shift(self, shift):
         self.shifts.append(shift)
 
@@ -76,8 +86,14 @@ class Employee(User):
     def set_shifts(self, shifts):
         self.shifts = shifts
 
+    def get_shifts(self):
+        return self.shifts
+
     def get_position_names(self):
-        return self.positions.keys()
+        jobs = ""
+        for position in self.positions.keys():
+            jobs += str(position)+", "
+        return jobs.strip(", ")
 
     def get_positions(self):
         """
@@ -110,6 +126,8 @@ class Employee(User):
 
 
 if __name__ == "__main__":
-    raw = db.get_employees_by_date_range(1,"2020-01-01","2020-01-07")
-    emp = Employee.create_from_DB(raw)
-    print(emp)
+    #raw = db.get_employees_by_date_range(1,"2020-01-01","2020-01-07")
+    #emp = Employee.create_from_DB(raw)
+    pass
+
+

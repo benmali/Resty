@@ -73,6 +73,7 @@ class WorkWeek:
 
         """
         """"""
+
         def schedule():
             """
             try schedule a chosen employee to shift
@@ -84,7 +85,7 @@ class WorkWeek:
                     # same_day_scheduling is set to false by default
                     if chosen_employee not in day.get_employees() or same_day_scheduling:
                         if chosen_employee not in shift.get_employees():
-                            chosen_employee.add_shift(shift.get_shift_id())
+                            chosen_employee.add_shift(shift)
                             shift_dic[i + 1] += [chosen_employee]
                             decrement_list = shift_dic[i]
                             decrement_list.remove(chosen_employee)
@@ -156,7 +157,7 @@ class WorkWeek:
                                 possible_employees.remove(chosen_employee)
 
                             possible_employees = [waitress for waitress in shift_dic[i] if
-                                                      "waitress" in waitress.get_positions()]  # filter out waitresses from
+                                                  "waitress" in waitress.get_positions()]  # filter out waitresses from
                             while num_waitresses > num_scheduled_waitresses:
                                 if len(possible_employees) == 0:  # if no possible match found
                                     break
@@ -195,6 +196,80 @@ class WorkWeek:
             print("Too many loops - program shutdown")
         except IndexError:
             print("Cant create scheduling, no valid options")
+
+    @classmethod
+    def min_shifts_swap(cls, dic, solution):
+        # set minimum shifts for employees
+        # issue!
+        shift_dic = {}  # map employee_id :num_shits
+        changes = False
+        over, under = [], []
+        for num_shifts, employees in dic.items():
+            for employee in employees:
+                shift_dic[employee.get_id()] = num_shifts
+                if employee.get_id() == 10:
+                    employee.set_min_shfits(2)
+                if employee.get_id() == 2:
+                    employee.set_min_shfits(4)
+                else:
+                    employee.set_min_shfits(0)
+                if employee.get_min_shifts() > num_shifts:
+                    under.append(employee)
+                if employee.get_min_shifts() < num_shifts:
+                    over.append(employee)
+        print(shift_dic)
+        if over and under:  # both lists not empty
+            for employee in over:
+                for shift in solution:
+                    emp_in_shift = shift.get_employees()
+                    if employee in emp_in_shift:
+                        shift_date = shift.get_date()
+                        start_hour = shift.get_start_hour()
+                        for emp in under:
+                            if shift_date in emp.get_dates().keys():
+                                if start_hour in emp.get_dates()[shift_date]:
+                                    if employee in shift.get_bartenders() and "bartender" in emp.get_positions():
+                                        shift.get_bartenders().remove(employee)
+                                        shift.get_bartenders().append(emp)
+                                        dic[shift_dic[employee.get_id()]].remove(employee)
+                                        dic[shift_dic[employee.get_id()] - 1].append(employee)
+                                        dic[shift_dic[emp.get_id()]].remove(emp)
+                                        dic[shift_dic[emp.get_id()] + 1].append(emp)
+                                        shift_dic[employee.get_id()] -= 1
+                                        shift_dic[emp.get_id()] += 1
+                                        emp.get_shifts().append(shift)
+                                        employee.get_shifts().remove(shift)
+                                        if emp.get_min_shifts() == len(emp.get_shifts()):
+                                            under.remove(emp)
+                                        if employee.get_min_shifts ==len(employee.get_shifts()):
+                                            over.remove(employee)
+
+                                        print("switched {} for {}".format(employee,emp))
+                                        changes=True
+                                        break
+                                    if employee in shift.get_waitresses() and "waitress" in emp.get_positions():
+                                        shift.get_waitresses().remove(employee)
+                                        shift.get_waitresses().append(emp)
+                                        dic[shift_dic[employee.get_id()]].remove(employee)
+                                        dic[shift_dic[employee.get_id()]-1].append(employee)
+                                        dic[shift_dic[emp.get_id()]].remove(emp)
+                                        dic[shift_dic[emp.get_id()] + 1].append(emp)
+                                        shift_dic[employee.get_id()] -= 1
+                                        shift_dic[emp.get_id()] += 1
+                                        emp.get_shifts().append(shift)
+                                        employee.get_shifts().remove(shift)
+                                        if emp.get_min_shifts() == len(emp.get_shifts()):
+                                            under.remove(emp)
+                                        if employee.get_min_shifts == len(employee.get_shifts()):
+                                            over.remove(employee)
+                                        print("switched {} for {}".format(employee, emp))
+                                        changes = True
+                                        break
+        if not changes:
+            print("No changes done")
+        print(shift_dic)
+        return dic, solution
+
 
     def create_combinations(self, employees):
         for employee in employees:

@@ -32,6 +32,11 @@ class Shift:
                                                                                self.bartenders,
                                                                                self.waitresses)
 
+    def __eq__(self, other):
+        if isinstance(other,Shift):
+            return self.shift_id == other.shift_id
+        return False
+
     @classmethod
     def create_templates(cls, org_id):
         """
