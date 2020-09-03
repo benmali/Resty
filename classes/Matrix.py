@@ -77,8 +77,8 @@ class Matrix:
         """
         get possible full dates for an employee from matrix
         :param employee_id: employee id
-        :param mat: work_mat or request_mat
-        :return: dates that the employee requested/ works on (depending on mat)
+        :param mat: work_mat ,request_mat, options_mat (1s in options are requested dates that he doesn't work on)
+        :return: dates that the employee requested/ works on/ can work and doesn't (depending on mat)
         """
         employee_key = self.map_eid_mat[employee_id]
         date_options = mat[:, employee_key]
@@ -95,3 +95,6 @@ class Matrix:
         employee_options = mat[date_key, :]
         return [self.map_eid_employee[self.reverse_mat_eid[i]] for i in range(len(employee_options))
                 if employee_options[i] == 1]
+
+
+
