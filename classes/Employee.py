@@ -38,6 +38,7 @@ class Employee(User):
             return self.get_id() == other.get_id()
         return False
     # hex(id(self)) object location in memory
+
     def __repr__(self):
         return "Employee {}, {}, {}".format(self.e_id, self.name, self.get_position_names())
 
@@ -73,6 +74,18 @@ class Employee(User):
 
     def set_min_shfits(self, min_shifts):
         self.min_shifts = min_shifts
+
+    def get_full_date_lst(self):
+        """
+        return list of full formatted shift dates and hours [YYYY-MM-DD HH:MM, YYYY-MM-DD HH:MM...]
+        :return:
+        """
+        dates = []
+        for key, value in self.work_days.items():
+            for hour in value:
+                dates.append(key+" " +hour)
+
+        return dates
 
     def get_min_shifts(self):
         return self.min_shifts
@@ -126,7 +139,7 @@ class Employee(User):
 
 
 if __name__ == "__main__":
-    #raw = db.get_employees_by_date_range(1,"2020-01-01","2020-01-07")
+    employees = db.get_employees_by_date_range(1, "2020-01-01", "2020-01-07")
     #emp = Employee.create_from_DB(raw)
     pass
 

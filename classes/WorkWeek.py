@@ -1,10 +1,12 @@
 from classes.Shift import Shift
 from classes.WorkDay import WorkDay
 from classes import datetimeHelp
+from classes.Employee import Employee
 import random
 import copy
 import itertools
 from DB import DB
+import numpy as np
 
 
 class WorkWeek:
@@ -140,8 +142,8 @@ class WorkWeek:
                             while num_bartenders > num_scheduled_bartenders:
                                 if len(possible_employees) == 0:
                                     break
-                                if day.is_first_shift(
-                                        shift) and not shift.get_bartenders():  # try schedule the first strong employee found
+                                # try schedule the first strong employee found
+                                if day.is_first_shift(shift) and not shift.get_bartenders():
                                     chosen_employee = Shift.get_senior_employee(shift.get_date(), "bartender", 2,
                                                                                 possible_employees)
                                     # find a senior employee that can work at this shift
@@ -199,11 +201,41 @@ class WorkWeek:
 
     @classmethod
     def min_shifts_swap(cls, dic, solution):
-        # set minimum shifts for employees
-        # issue!
+        def switch():
+            # emp.get_shifts().append(shift)
+            # employee.get_shifts().remove(shift)
+            # shift_dic[employee.get_id()] -= 1
+            # shift_dic[emp.get_id()] += 1
+            # # switch shifts between employees
+            # emp_shifts = emp.get_shifts().append(shift1).remove(shift2)
+            # employee_shifts = employee.get_shifts.append(shift2).remove(shift1)
+            # shift1.remove(employee).append(emp)
+            # shif2.append(employee).remove(emp)
+            # employee.get_shifts().remove(shift)
+            pass
+
+
+        def take():
+            """
+            shift_dic: counts the number of shifts per employee
+            dic: maps number of shifts to Employee objects
+            :return:
+            """
+            dic[shift_dic[employee.get_id()]].remove(employee) # remove employee from shift counter
+            dic[shift_dic[employee.get_id()] - 1].append(employee) # add employee to shift counter
+            dic[shift_dic[emp.get_id()]].remove(emp)
+            dic[shift_dic[emp.get_id()] + 1].append(emp)
+            shift_dic[employee.get_id()] -= 1
+            shift_dic[emp.get_id()] += 1
+            emp.get_shifts().append(shift)
+            employee.get_shifts().remove(shift)
+            if emp.get_min_shifts() == len(emp.get_shifts()):
+                under.remove(emp)
+            if employee.get_min_shifts == len(employee.get_shifts()):
+                over.remove(employee)
         shift_dic = {}  # map employee_id :num_shits
         changes = False
-        over, under = [], []
+        over, under, exact = [], [], []
         for num_shifts, employees in dic.items():
             for employee in employees:
                 shift_dic[employee.get_id()] = num_shifts
@@ -217,6 +249,8 @@ class WorkWeek:
                     under.append(employee)
                 if employee.get_min_shifts() < num_shifts:
                     over.append(employee)
+                else:
+                    exact.append(employee)
         print(shift_dic)
         if over and under:  # both lists not empty
             for employee in over:
@@ -231,52 +265,77 @@ class WorkWeek:
                                     if employee in shift.get_bartenders() and "bartender" in emp.get_positions():
                                         shift.get_bartenders().remove(employee)
                                         shift.get_bartenders().append(emp)
-                                        dic[shift_dic[employee.get_id()]].remove(employee)
-                                        dic[shift_dic[employee.get_id()] - 1].append(employee)
-                                        dic[shift_dic[emp.get_id()]].remove(emp)
-                                        dic[shift_dic[emp.get_id()] + 1].append(emp)
-                                        shift_dic[employee.get_id()] -= 1
-                                        shift_dic[emp.get_id()] += 1
-                                        emp.get_shifts().append(shift)
-                                        employee.get_shifts().remove(shift)
-                                        if emp.get_min_shifts() == len(emp.get_shifts()):
-                                            under.remove(emp)
-                                        if employee.get_min_shifts ==len(employee.get_shifts()):
-                                            over.remove(employee)
-
+                                        take()
                                         print("switched {} for {}".format(employee,emp))
-                                        changes=True
+                                        changes = True
                                         break
                                     if employee in shift.get_waitresses() and "waitress" in emp.get_positions():
                                         shift.get_waitresses().remove(employee)
                                         shift.get_waitresses().append(emp)
-                                        dic[shift_dic[employee.get_id()]].remove(employee)
-                                        dic[shift_dic[employee.get_id()]-1].append(employee)
-                                        dic[shift_dic[emp.get_id()]].remove(emp)
-                                        dic[shift_dic[emp.get_id()] + 1].append(emp)
-                                        shift_dic[employee.get_id()] -= 1
-                                        shift_dic[emp.get_id()] += 1
-                                        emp.get_shifts().append(shift)
-                                        employee.get_shifts().remove(shift)
-                                        if emp.get_min_shifts() == len(emp.get_shifts()):
-                                            under.remove(emp)
-                                        if employee.get_min_shifts == len(employee.get_shifts()):
-                                            over.remove(employee)
+                                        take()
                                         print("switched {} for {}".format(employee, emp))
                                         changes = True
                                         break
+        if under:  # no direct switch possible and still employees left in under
+            dic, solution = cls.switch3(over, under, exact, dic, solution)
         if not changes:
             print("No changes done")
         print(shift_dic)
         return dic, solution
 
+    def switch3(self, over, under, exact, dic, solution):
+        emp_map, map_dates, map_employee, mat = WorkWeek.build_request_mat(1, "2020-01-01", "2020-01-07")
+        reverse_date_map = {}  # map mat index: date
+        for key, value in map_dates.items():
+            reverse_date_map[value] = key
+        for emp_over in over:
+            for emp_exact in exact:
+                for emp_under in under:
+                    over_index = map_employee[emp_over.get_id()]
+                    exact_index = map_employee[emp_exact.get_id()]
+                    under_index = map_employee[emp_under.get_id()]
+                    common_over_exact = [reverse_date_map[i] for i in range(len(mat)) if mat[i][over_index]==mat[i][exact_index]]
+                    # common_under_exact = [reverse_date_map[i] for i in range(len(mat)) if mat[i][under_index]==mat[i][exact_index]]
 
+        # find a date under wants
+        # get from table list of employees who work there
+        # filter out exact employees
+        # find common dates between the exacts and the overs  -  rows where mat[i][over]==mat[i][exact]
+        # on every match - check if they work in the shift
+        # if they both work there and in correct position switch them
+        # switch over employee with exact employee on another common date they have
+        # take under and over
+        # build matrix of possible shift but didn't get?
+        # for emp_over in over:
+        #     for emp_exact in exact:
+        #         for emp_under in under:
+        #             over_index = map_employee[emp_over.get_id()]
+        #             exact_index = map_employee[emp_exact.get_id()]
+        #             under_index = map_employee[emp_under.get_id()]
+        #             common_over_exact = [reverse_date_map[i] for i in range(len(mat)) if mat[i][over_index]==mat[i][exact_index]]
+        #             common_under_exact = [reverse_date_map[i] for i in range(len(mat)) if mat[i][under_index]==mat[i][exact_index]]
+
+                    #switch_shift(exact,over,shift)
+                    #take_shift(under,over,shift)
+                    # under wants exact's date, so switch exact problematic date to any common date he has with over
+                    # now over has the desired date
+                    # under takes the desired date from over
+
+        #switch exact and over
+        #take() with under and over
+
+        return dic, solution
+    # find employee with exact num_shifts, one with over number of shifts another with under
+    # switch over and exact
+    # switch over and under
+    # exact
+    # under_date -> find match with exact -> find match with over
+    # if match found, rotate
     def create_combinations(self, employees):
         for employee in employees:
             for date in employee.get_dates():
                 pass
     # lst = list(itertools.combinations(iterable, r))
-
 
 if __name__ == "__main__":
     db = DB("Resty.db")
@@ -318,10 +377,14 @@ if __name__ == "__main__":
     wd7.add_shift(s14)
     ww = WorkWeek([wd, wd2, wd3, wd4, wd5, wd6, wd7])
     employees = db.get_employees_by_date_range(1, "2020-01-01", "2020-01-07")
+    emp_map, map_dates, map_employee, mat = WorkWeek.build_request_mat(1,"2020-01-01", "2020-01-07")
+    print(WorkWeek.get_employee_dates(1,map_dates,map_employee, mat))
+    print(WorkWeek.get_employees_for_date("2020-01-01 19:00", emp_map, map_dates, map_employee, mat))
     # print("best sol is")
     # for shift in sol:
     #     print (shift)
     # print(dic)
     # ww = WorkWeek.from_template(1,1)
+    print(employees)
     print("sd")
     # db.register_arrangement(sol)
