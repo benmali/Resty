@@ -73,13 +73,20 @@ class Matrix:
                 work_mat[i][j] = 1
         return work_mat
 
-    def get_employee_dates(self, employee_id, mat):
+    def get_employee_dates(self, employee_id, mat_code):
         """
         get possible full dates for an employee from matrix
+        "w" parameter will get working dates "r" will get requested dates, "o" will get requested but didn't get
+        :param mat_code: "w" for work_mat ,"r" for request_mat, "o" for options_mat
         :param employee_id: employee id
-        :param mat: work_mat ,request_mat, options_mat (1s in options are requested dates that he doesn't work on)
         :return: dates that the employee requested/ works on/ can work and doesn't (depending on mat)
         """
+        if mat_code == "w":
+            mat = self.work_mat
+        elif mat_code == "r":
+            mat = self.request_mat
+        else:
+            mat = self.options_mat
         employee_key = self.map_eid_mat[employee_id]
         date_options = mat[:, employee_key]
         return [self.reverse_mat_date[i] for i in range(len(date_options)) if date_options[i] == 1]
@@ -88,7 +95,7 @@ class Matrix:
         """
         get possible employees on a specific date
         :param date: date to find employees that work in this day
-        :param mat: work mat or  request mat
+        :param mat: work mat or request mat
         :return: employees that requested/working in specific date (depending on input mat)
         """
         date_key = mat[date]
@@ -97,4 +104,5 @@ class Matrix:
                 if employee_options[i] == 1]
 
 
-
+if __name__ == "__main__":
+    pass
