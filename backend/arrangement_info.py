@@ -4,6 +4,7 @@ from classes.Employee import Employee
 from classes.WorkWeek import WorkWeek
 from classes.WorkDay import WorkDay
 from classes.Shift import Shift
+from classes.Matrix import Matrix
 
 arrangementInfoBP = Blueprint("arrangement_info", __name__, static_folder="static", template_folder="templates")
 
@@ -42,6 +43,8 @@ def arrangement_info():
 
         ww = WorkWeek(workdays)
         dic, sol = ww.create_arrangement(employees, same_day_scheduling)
+        employees, shifts = ww.extract_solution(sol)
+        mat = Matrix(employees, shifts)
         # dic is a dictionary that maps number of shifts assigned to a employee
         # sol is the actual solved arrangement
         # for example {1:[E1,E2], 2:[E3,E4]..}
@@ -57,7 +60,7 @@ def arrangement_info():
         # 3: [Employee 6, pagi pagi, dict_keys(['waitress', 'bartender']), Employee 4, niv mali, dict_keys(['bartender']), Employee 9, some guy, dict_keys(['waitress']), Employee 1, ben mali, dict_keys(['bartender']), Employee 10, another guy, dict_keys(['bartender', 'waitress']), Employee 3, rom mali, dict_keys(['bartender'])],
         # 4: [Employee 2, paz mali, dict_keys(['waitress'])]
         #swap 2 and 10 set 10 to 4 min
-        dic,sol = WorkWeek.min_shifts_swap(dic,sol)
+        dic, solution = ww.min_shifts_swap(dic, sol)
         return str([sol, dic])
     else:
         return render_template("error_page.html")
@@ -66,8 +69,8 @@ def arrangement_info():
 if __name__ == "__main__":
     user_id = 1  # get logged in user's ID
     org_id = db.get_org_by_usr(user_id)[0][0]  # get user org_id
-    raw_employees = db.get_employees_by_date_range(org_id, "1-1-2020", "7-1-2020")
-    employees = Employee.create_from_DB(raw_employees)
+    #raw_employees = db.get_employees_by_date_range(org_id, "1-1-2020", "7-1-2020")
+    employees = Employee.create_from_DB(db.get_employees_by_date_range(org_id, "2020-01-01", "2020-01-07"))
     raw_shifts = db.get_shifts_by_date_range(org_id, "1-1-2020", "7-1-2020")
     shifts = [Shift(shift[0], shift[1], shift[2]) for shift in raw_shifts]
     raw_workdays = db.get_wdays_by_date_range(org_id, "1-1-2020", "7-1-2020")

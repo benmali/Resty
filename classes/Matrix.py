@@ -4,8 +4,8 @@ import numpy as np
 class Matrix:
     def __init__(self, employees, shifts):
         """
-        shifts = Shift.create_from_DB(db.get_shifts_by_date_range(org_id, start_date, end_date))
-        employees = Employee.create_from_DB(db.get_employees_by_date_range(org_id, start_date, end_date))
+        employees and shifts will be extracted from solution
+        employees that didn't send work hours request will NOT be included here!
         :param employees: list of Shift objects
         :param shifts: list of Employee objects
                  emp1, emp2, emp3, emp4
@@ -23,19 +23,22 @@ class Matrix:
         :param map_eid_mat  - map employee_id : mat_number
         :param reverse_mat_date -  map mat index : date
         :param reverse_mat_eid - map mat index: employee_id
+        :param map_shifts - map date to shift object
+        :param jobs_mat - z axis layer of tensor
         """
         self.employees = employees
         self.shifts = shifts
-        # self.base_mat = np.array([[0 for j in range(len(employees))] for i in range(len(shifts))])
-        self.base_mat = np.zeros(len(self.shifts), len(self.employees))
+        self.base_mat = np.zeros((len(self.shifts), len(self.employees)), dtype=int)
         self.employee_map = {}
         self.map_eid_employee = {}
         self.map_date_mat = {}
         self.map_eid_mat = {}
+        self.map_shifts = {}
         self.reverse_mat_date = {}
         self.reverse_mat_eid = {}
         for i in range(len(shifts)):
             self.map_date_mat[shifts[i].get_full_time()] = i
+            self.map_shifts[shifts[i].get_full_time()] = shifts[i]
         for j in range(len(employees)):
             self.map_eid_mat[employees[j].get_id()] = j
             self.employee_map[employees[j].get_id()] = employees[j]
@@ -43,7 +46,8 @@ class Matrix:
             self.reverse_mat_date[value] = key
         for key, value in self.map_eid_mat.items():
             self.reverse_mat_eid[value] = key
-        self.work_mat = self.build_work_mat()
+        self.work_mat, self.jobs_mat = self.build_work_mat()
+        self.tensor = np.array([self.work_mat, self.jobs_mat])
         self.request_mat = self.build_request_mat()
         self.options_mat = self.work_mat + self.request_mat
 
@@ -63,15 +67,21 @@ class Matrix:
     def build_work_mat(self):
         """
         build a matrix that represents shifts that employees work in
+        build a 2nd matrix that represents which position an employee was scheduled to work at
         :return:
         """
         work_mat = np.copy(self.base_mat)
+        jobs_mat = np.copy(self.base_mat)
         for employee in self.employees:
             for shift in employee.get_shifts():
                 i = self.map_date_mat[shift.get_full_time()]
                 j = self.map_eid_mat[employee.get_id()]
                 work_mat[i][j] = 1
-        return work_mat
+                if employee in shift.get_bartenders():
+                    jobs_mat[i][j] = 1
+                if employee in shift.get_waitresses():
+                    jobs_mat[i][j] = 2
+        return work_mat, jobs_mat
 
     def get_employee_dates(self, employee_id, mat_code):
         """
@@ -103,6 +113,36 @@ class Matrix:
         return [self.map_eid_employee[self.reverse_mat_eid[i]] for i in range(len(employee_options))
                 if employee_options[i] == 1]
 
+    def get_shift(self, date):
+        """
+        get shift object from date
+        :param date: full date format YYYY:MM:DD HH:MM
+        :return: Shift object
+        """
+        return self.map_shifts[date]
+
+    def shift_job_matrix(self):
+        """
+        build upper layer of tensor
+        might combine with other matrix methods (can unite them)
+        :return:
+        """
+        mat = np.zeros(len(self.shifts), len(self.employees))
+        for i in range(len(self.shifts)):
+            for j in range(len(self.employees)):
+                if self.employees[j] in self.shifts[i].get_bartenders():
+                    mat[i][j] = 1
+                elif self.employees[j] in self.shifts[i].get_waitresses():
+                    mat[i][j] = 2
+                else:
+                    mat[i][j] = 0
+        return mat
+
 
 if __name__ == "__main__":
-    pass
+    work_mat = np.array([[1, 0, 1],
+                         [0, 1, 1]])
+    jobs_mat = np.array([[2, 0, 1],
+                         [0, 2, 1]])
+    tensor = np.array([work_mat, jobs_mat])
+    print(tensor[1][0][0])

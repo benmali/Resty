@@ -162,6 +162,7 @@ class Shift:
 
     def get_full_time(self):
         return self.date+" "+self.start_hour
+
     def get_shift_id(self):
         return self.shift_id
 

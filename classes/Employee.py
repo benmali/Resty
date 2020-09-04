@@ -11,7 +11,8 @@ class Employee(User):
         :param e_id: employee's ID
         :param name: employee's full name
         :param positions: dictionary containing position:seniority
-        :param work_days: possible working days: start_hour dictionary
+        :param work_days: possible working date: start_hour dictionary
+        :param work_days: possible working date: start_hour dictionary
         :param min_shifts: set minimum number of shifts
         """
         self.e_id = e_id
@@ -72,7 +73,7 @@ class Employee(User):
         name = self.name.split(" ")
         return name[0], name[1]
 
-    def set_min_shfits(self, min_shifts):
+    def set_min_shifts(self, min_shifts):
         self.min_shifts = min_shifts
 
     def get_full_date_lst(self):
