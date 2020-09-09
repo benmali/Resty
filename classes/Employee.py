@@ -5,7 +5,7 @@ db = DB("Resty.db")
 
 
 class Employee(User):
-    def __init__(self, e_id, name, positions, work_days=None, min_shifts=None):
+    def __init__(self, e_id, name, positions, work_days, min_shifts=0):
         """
         create an Employee object
         :param e_id: employee's ID
@@ -45,10 +45,11 @@ class Employee(User):
 
     @classmethod
     def create_from_DB(cls, raw_employees):
-        employee_dates, employee_names = {}, {}  # map e_id to dates
+        employee_dates, employee_names, employee_shifts = {}, {}, {}  # map e_id to dates
         employees = []
         for employee in raw_employees:
             e_id = employee[0]
+            min_shifts = employee[5]
             if e_id in employee_dates:
                 if employee[4]:  # Employee request a specific time a his shift, combine date and hour
                     employee_dates[e_id] += [employee[3] + " " + employee[4]]
@@ -61,12 +62,15 @@ class Employee(User):
                     employee_dates[e_id] = [employee[3]]
             if e_id not in employee_names:  # combine first and last name
                 employee_names[e_id] = employee[1] + " " + employee[2]
+                employee_shifts[e_id] = employee[5]
         for e_id in employee_dates.keys():
             positions = db.get_employee_positions(e_id)
             positions_dic = {}
             for position in positions:
                 positions_dic[position[0]] = position[1]
-            employees.append(Employee(e_id, employee_names[e_id], positions_dic, employee_dates[e_id]))
+            employees.append(Employee(e_id, employee_names[e_id], positions_dic,
+                                      employee_dates[e_id], employee_shifts[e_id]))
+
         return employees
 
     def get_full_name(self):
@@ -142,6 +146,6 @@ class Employee(User):
 if __name__ == "__main__":
     employees = db.get_employees_by_date_range(1, "2020-01-01", "2020-01-07")
     #emp = Employee.create_from_DB(raw)
-    pass
+    print("s")
 
 

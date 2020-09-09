@@ -64,6 +64,21 @@ class Matrix:
                 request_mat[i][j] = 1
         return request_mat
 
+    def get_work_tensor(self):
+        return self.tensor
+
+    def set_tensor(self, employee, date, position):
+        i = self.map_date_mat[date]
+        j = self.map_eid_mat[employee.get_id()]
+        if position == "bartender":
+            z = 1
+        elif position == "waitress":
+            z = 2
+        else:
+            z = 0
+        self.tensor[0][i][j] = 1  # update employee will work at this date
+        self.tensor[1][i][j] = z  # update employee will work at what position
+
     def build_work_mat(self):
         """
         build a matrix that represents shifts that employees work in
@@ -83,6 +98,42 @@ class Matrix:
                     jobs_mat[i][j] = 2
         return work_mat, jobs_mat
 
+    def is_bar_station(self, employee, date):
+        """
+
+        :param employee: Employee object
+        :param date: date
+        :return: True if employee works as bartender this day
+        """
+        i = self.map_date_mat[date]
+        j = self.map_eid_mat[employee.get_id()]
+        return self.tensor[1][i][j] == 1
+
+    def is_waitress_station(self, employee, date):
+        """
+
+        :param employee:
+        :param date:
+        :return: True if employee works as waitress  this day
+        """
+        i = self.map_date_mat[date]
+        j = self.map_eid_mat[employee.get_id()]
+        return self.tensor[1][i][j] == 2
+
+    def get_employee_station(self, employee, date):
+        """
+        get station which employee is stationed at specific shift
+        :return:
+        """
+        i = self.map_date_mat[date]
+        j = self.map_eid_mat[employee.get_id()]
+        if self.tensor[1][i][j] == 1:
+            return "bartender"
+        if self.tensor[1][i][j] == 2:
+            return "waitress"
+        else:
+            return "Not stationed!"
+
     def get_employee_dates(self, employee_id, mat_code):
         """
         get possible full dates for an employee from matrix
@@ -92,7 +143,7 @@ class Matrix:
         :return: dates that the employee requested/ works on/ can work and doesn't (depending on mat)
         """
         if mat_code == "w":
-            mat = self.work_mat
+            mat = self.tensor[0]
         elif mat_code == "r":
             mat = self.request_mat
         else:
@@ -101,13 +152,77 @@ class Matrix:
         date_options = mat[:, employee_key]
         return [self.reverse_mat_date[i] for i in range(len(date_options)) if date_options[i] == 1]
 
-    def get_employees_from_date(self, date, mat):
+    def switch_shifts(self, employee1, employee2, date1, date2, position):
+        """
+        switch employees on work_mat, doesn't affect upper layer of tensor! (they switch on the same station)
+        :param employee1:
+        :param employee2:
+        :param date1:
+        :param date2:
+        :param position: int - the position the employee fills in this shift (1-bartender, 2-waitress)
+        :return:
+        """
+        if position == "bartender":
+            position = 1
+        elif position == "waitress":
+            position = 2
+        else:
+            position = 0
+        i_1 = self.map_date_mat[date1]
+        i_2 = self.map_date_mat[date2]
+        j_1 = self.map_eid_mat[employee1.get_id()]
+        j_2 = self.map_eid_mat[employee2.get_id()]
+        self.tensor[0][i_1][j_1] = 0  # remove employee1 from shift
+        self.tensor[0][i_1][j_2] = 1  # add employee2 to shift
+        self.tensor[0][i_2][j_2] = 0  # remove employee2 from shift
+        self.tensor[0][i_2][j_1] = 1  # add employee1 to shift
+        self.tensor[0][i_1][j_1] = 0  # remove employee1 from shift
+        self.tensor[0][i_1][j_2] = 1  # add employee2 to shift
+        self.tensor[1][i_1][j_1] = 0  # remove employee1 from shift
+        self.tensor[1][i_1][j_2] = position  # add employee2 to shift
+        self.tensor[1][i_2][j_2] = 0  # remove employee2 from shift
+        self.tensor[1][i_2][j_1] = position  # add employee1 to shift
+        self.tensor[1][i_1][j_1] = 0  # remove employee1 from shift
+        self.tensor[1][i_1][j_2] = position  # add employee2 to shift
+
+    def take_shifts(self, employee1, employee2, date, position):
+        """
+        switch employees on work_mat, doesn't affect upper layer of tensor! (they switch on the same station)
+        :param employee1:
+        :param employee2:
+        :param date1:
+        :param date2:
+        :param position: the position the employee fills in this shift
+        :return:
+        """
+        if position == "bartender":
+            position = 1
+        elif position == "waitress":
+            position = 2
+        else:
+            position = 0
+        i_1 = self.map_date_mat[date]
+        j_1 = self.map_eid_mat[employee1.get_id()]
+        j_2 = self.map_eid_mat[employee2.get_id()]
+        self.tensor[0][i_1][j_1] = 0  # remove employee1 from shift
+        self.tensor[0][i_1][j_2] = 1  # add employee2 to shift
+        self.tensor[1][i_1][j_1] = 0  # remove employee1 from shift
+        self.tensor[1][i_1][j_2] = position  # add employee2 to shift
+
+    def get_employees_from_date(self, date, mat_code):
         """
         get possible employees on a specific date
+        :param mat_code  - "w" for working employees, "r" for requested this day, "o" requested and didn't get
         :param date: date to find employees that work in this day
         :param mat: work mat or request mat
         :return: employees that requested/working in specific date (depending on input mat)
         """
+        if mat_code == "w":
+            mat = self.tensor[0]
+        elif mat_code == "r":
+            mat = self.request_mat
+        else:
+            mat = self.options_mat
         date_key = mat[date]
         employee_options = mat[date_key, :]
         return [self.map_eid_employee[self.reverse_mat_eid[i]] for i in range(len(employee_options))
@@ -120,23 +235,6 @@ class Matrix:
         :return: Shift object
         """
         return self.map_shifts[date]
-
-    def shift_job_matrix(self):
-        """
-        build upper layer of tensor
-        might combine with other matrix methods (can unite them)
-        :return:
-        """
-        mat = np.zeros(len(self.shifts), len(self.employees))
-        for i in range(len(self.shifts)):
-            for j in range(len(self.employees)):
-                if self.employees[j] in self.shifts[i].get_bartenders():
-                    mat[i][j] = 1
-                elif self.employees[j] in self.shifts[i].get_waitresses():
-                    mat[i][j] = 2
-                else:
-                    mat[i][j] = 0
-        return mat
 
 
 if __name__ == "__main__":

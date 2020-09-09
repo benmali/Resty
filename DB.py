@@ -29,6 +29,7 @@ class DB:
                               employee_id INT NOT NULL,
                               first_name VARCHAR(50) NOT NULL,
                               last_name VARCHAR(50) NOT NULL,
+                              min_shifts INT NOT NULL,
                               PRIMARY KEY (employee_id)
                             );
                           """
@@ -146,19 +147,21 @@ class DB:
         except IOError:
             print("DB already exists")
 
-    def insert_employee(self, employee_id, first_name, last_name):
+    def insert_employee(self, employee_id, first_name, last_name, min_shifts):
         """
         insert Employee into the DB
         :param employee_id:
         :param first_name:
         :param last_name:
+        :param min_shifts: minimum number of shifts for an employee per week
         :return: True if insert successfully False else
         """
         if not self.check_for_db():  # if DB doesn't exist create it
             self.create_db()
         connection = sqlite3.connect(self.name)
         crsr = connection.cursor()
-        insret_query = """INSERT INTO Employee VALUES ({}, {},{}});""".format(employee_id, first_name, last_name)
+        insret_query = """INSERT INTO Employee
+                          VALUES ({}, {},{},{});""".format(employee_id, first_name, last_name, min_shifts)
         crsr.execute(insret_query)
         connection.commit()
         connection.close()
@@ -450,7 +453,7 @@ class DB:
             if self.check_for_db():  # check fot DB existence
                 connection = sqlite3.connect(self.name)
                 crsr = connection.cursor()
-                query = """SELECT E.employee_id, first_name, last_name, ET.date, ET.start_time
+                query = """SELECT E.employee_id, first_name, last_name, ET.date, ET.start_time,E.min_shifts
                             FROM Employee E 
                             JOIN Employee_Times ET ON E.employee_id=ET.employee_id 
                         JOIN User_in_Org UIO ON ET.employee_id=UIO.user_id

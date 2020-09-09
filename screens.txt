@@ -99,7 +99,8 @@ SEND HOURS FORM
 
 
 OPEN ISSUES:
-ADD min_shifts to Employee table
+
+fix algorithm with matrix - error in setting tensor
 CODE READIABLITY OF WORKWEEK FUNCTIONS
 ERROR IN SOME CLASSES TESTING DB FUNCTIONS (ERROR GETTING EMPLOYEES BY DATERANGE IN Empoyee and not in WorkWEEK)
 
