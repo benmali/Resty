@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, session
+import json
 from DB import DB
 from classes.Employee import Employee
 from classes.WorkWeek import WorkWeek
@@ -61,7 +62,7 @@ def arrangement_info():
         # 4: [Employee 2, paz mali, dict_keys(['waitress'])]
         #swap 2 and 10 set 10 to 4 min
         dic, solution = ww.min_shifts_swap(dic, sol)
-        return str([sol, dic])
+        return json.dumps(sol)
     else:
         return render_template("error_page.html")
 
