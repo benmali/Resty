@@ -43,6 +43,10 @@ class Employee(User):
     def __repr__(self):
         return "Employee {}, {}, {}".format(self.e_id, self.name, self.get_position_names())
 
+    def get_json(self):
+        return dict(employee_id=self.e_id,
+                    name=self.name,
+                    positions=self.get_position_names())
     @classmethod
     def create_from_DB(cls, raw_employees):
         employee_dates, employee_names, employee_shifts = {}, {}, {}  # map e_id to dates

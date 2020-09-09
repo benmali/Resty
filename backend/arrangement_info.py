@@ -13,6 +13,7 @@ arrangementInfoBP = Blueprint("arrangement_info", __name__, static_folder="stati
 db = DB("Resty.db")
 
 
+
 @arrangementInfoBP.route("/arrangement_info", methods=["GET"])
 def arrangement_info():
     if request.method == "GET":
@@ -62,7 +63,8 @@ def arrangement_info():
         # 4: [Employee 2, paz mali, dict_keys(['waitress'])]
         #swap 2 and 10 set 10 to 4 min
         dic, solution = ww.min_shifts_swap(dic, sol)
-        return json.dumps(sol)
+
+        return str([shift.get_json() for shift in solution])
     else:
         return render_template("error_page.html")
 

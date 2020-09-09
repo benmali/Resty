@@ -2,6 +2,7 @@ from classes import datetimeHelp
 
 from datetime import date as dt
 from DB import DB
+import json
 
 
 class Shift:
@@ -33,7 +34,7 @@ class Shift:
                                                                                self.waitresses)
 
     def __eq__(self, other):
-        if isinstance(other,Shift):
+        if isinstance(other, Shift):
             return self.shift_id == other.shift_id
         return False
 
@@ -124,6 +125,14 @@ class Shift:
         """
         pass
 
+    def get_json(self):
+        return dict(
+                    shift_id=self.shift_id,
+                    bartenders=[bartender.get_json() for bartender in self.get_bartenders()],
+                    waitresses=[waitress.get_json() for waitress in self.get_waitresses()],
+                    full_date=self.get_full_time(),
+                    )
+
     def get_seniority(self):
         return self.seniority
 
@@ -161,7 +170,7 @@ class Shift:
         return self.date
 
     def get_full_time(self):
-        return self.date+" "+self.start_hour
+        return self.date + " " + self.start_hour
 
     def get_shift_id(self):
         return self.shift_id
@@ -185,7 +194,7 @@ class Shift:
         return self.waitresses
 
     def get_employees(self):
-        return self.bartenders+ self.waitresses
+        return self.bartenders + self.waitresses
 
 
 @staticmethod
