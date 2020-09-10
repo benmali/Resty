@@ -47,6 +47,7 @@ class Employee(User):
         return dict(employee_id=self.e_id,
                     name=self.name,
                     positions=self.get_position_names())
+
     @classmethod
     def create_from_DB(cls, raw_employees):
         employee_dates, employee_names, employee_shifts = {}, {}, {}  # map e_id to dates

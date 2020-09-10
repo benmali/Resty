@@ -63,8 +63,10 @@ def arrangement_info():
         # 4: [Employee 2, paz mali, dict_keys(['waitress'])]
         #swap 2 and 10 set 10 to 4 min
         dic, solution = ww.min_shifts_swap(dic, sol)
-
-        return str([shift.get_json() for shift in solution])
+        js_dict = {}
+        for i in range(len(solution)):
+            js_dict["shift {}".format(i+1)] = solution[i].get_json()
+        return js_dict
     else:
         return render_template("error_page.html")
 
