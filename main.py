@@ -1,4 +1,4 @@
-from flask import Flask, session
+from flask import Flask
 from backend.register import registerBP
 from backend.send_hours import sendHoursBP
 from backend.main_page import mainBP

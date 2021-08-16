@@ -1,6 +1,4 @@
 from flask import Blueprint, render_template, request, session
-import json
-from DB import DB
 from classes.Employee import Employee
 from classes.WorkWeek import WorkWeek
 from classes.WorkDay import WorkDay
@@ -8,10 +6,9 @@ from classes.Shift import Shift
 from classes.Matrix import Matrix
 
 arrangementInfoBP = Blueprint("arrangement_info", __name__, static_folder="static", template_folder="templates")
-
+from classes.DB.DB import DB
 
 db = DB("Resty.db")
-
 
 
 @arrangementInfoBP.route("/arrangement_info", methods=["GET"])

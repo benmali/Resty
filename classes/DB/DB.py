@@ -5,14 +5,13 @@ import logging
 from pathlib import Path
 
 
-
-
 class DB:
     def __init__(self, name):
         self.name = name
 
     def get_connection_path(self):
         return str(Path(os.getcwd())) + "/" + self.name
+
     def check_for_db(self):
         path = str(Path(os.getcwd()).parent)
         if not os.path.isfile(path+"/"+self.name):

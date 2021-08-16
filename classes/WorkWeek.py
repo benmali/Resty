@@ -6,7 +6,7 @@ import random
 import copy
 from classes.Matrix import Matrix
 import itertools
-from DB import DB
+from classes.DB.DB import DB
 
 
 class WorkWeek:

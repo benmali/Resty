@@ -2,7 +2,7 @@ from flask import Blueprint, flash, request, redirect
 from classes import datetimeHelp
 from classes.Shift import Shift
 from datetime import date as dt
-from DB import DB
+from classes.DB.DB import DB
 import json
 
 db = DB("Resty.db")

@@ -1,7 +1,5 @@
 from classes.User import User
 import re
-from DB import DB
-db = DB("Resty.db")
 
 
 class Employee(User):

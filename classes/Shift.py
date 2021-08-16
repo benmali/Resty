@@ -1,8 +1,7 @@
 from classes import datetimeHelp
 
 from datetime import date as dt
-from DB import DB
-import json
+from classes.DB.DB import DB
 
 
 class Shift:
