@@ -1,5 +1,5 @@
 	Home screen
-
+.
 user panel (if admin)
 
 register user - id, first name,last name,phone
